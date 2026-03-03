@@ -23,7 +23,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -80,10 +80,13 @@ async def analyze_public(request: Request, file: UploadFile = File(...)):
     Runs analysis but does NOT store the image.
     Only saves aggregate data (no user_id, no file).
     """
+    print(f"[DEBUG] Received public scan request: {file.filename}")
     file_bytes = await file.read()
     validate_file(file, file_bytes)
 
+    print("[DEBUG] Running Gemini analysis...")
     result = analyze_document(file_bytes)
+    print(f"[DEBUG] Analysis complete: {result['fraud_likelihood']}")
 
     # Save result without image or user_id for aggregate stats
     save_scan(

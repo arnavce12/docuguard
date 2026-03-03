@@ -15,12 +15,18 @@ BUCKET = os.getenv("SUPABASE_BUCKET", "documents")
 def upload_image(file_bytes: bytes, filename: str, content_type: str) -> str:
     """Upload image to Supabase storage, return the storage path."""
     path = f"uploads/{filename}"
-    supabase.storage.from_(BUCKET).upload(
-        path,
-        file_bytes,
-        {"content-type": content_type, "upsert": "true"}
-    )
-    return path
+    print(f"[DEBUG] Uploading to Supabase bucket: {BUCKET}, path: {path}")
+    try:
+        supabase.storage.from_(BUCKET).upload(
+            path,
+            file_bytes,
+            {"content-type": content_type, "upsert": "true"}
+        )
+        print("[DEBUG] Upload successful")
+        return path
+    except Exception as e:
+        print(f"[DEBUG] Upload failed: {str(e)}")
+        raise e
 
 
 def get_signed_url(storage_path: str) -> str:

@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("models/gemini-3-flash-preview")
+model = genai.GenerativeModel("models/gemini-2.5-flash")
 
 PROMPT = """
 You are an expert document forensics analyst specializing in financial fraud detection.
@@ -48,14 +48,23 @@ If the image is not a document (e.g. a photo, selfie, random image), return:
 
 def analyze_document(image_bytes: bytes) -> dict:
     """Send image to Gemini and return parsed fraud analysis."""
+    print(f"[DEBUG] gemini.analyze_document started (bytes: {len(image_bytes)})")
     try:
         image = Image.open(io.BytesIO(image_bytes))
-        response = model.generate_content([PROMPT, image])
+        # Add generation config for more control
+        generation_config = {
+            "temperature": 0.1,
+            "top_p": 1,
+            "top_k": 32,
+            "max_output_tokens": 4096,
+        }
+        response = model.generate_content([PROMPT, image], generation_config=generation_config)
+        print("[DEBUG] Gemini responded successfully")
         raw = response.text.strip()
 
         # Strip markdown code fences if Gemini adds them anyway
         raw = re.sub(r"```json|```", "", raw).strip()
-
+        print(raw)
         result = json.loads(raw)
 
         # Validate and sanitize the response
@@ -67,7 +76,10 @@ def analyze_document(image_bytes: bytes) -> dict:
         result["confidence_score"] = int(result["confidence_score"])
         return result
 
-    except (json.JSONDecodeError, AssertionError, KeyError):
+    except (json.JSONDecodeError, AssertionError, KeyError) as e:
+        print(f"[DEBUG] Parse/validation error: {type(e).__name__}: {e}")
+        print(f"[DEBUG] Raw length: {len(raw) if 'raw' in dir() else 'N/A'}")
+        print(f"[DEBUG] Raw tail: {raw[-200:] if 'raw' in dir() and raw else 'N/A'}")
         # Fallback if Gemini returns something unexpected
         return {
             "fraud_likelihood": "medium",
