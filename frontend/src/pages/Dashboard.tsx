@@ -6,31 +6,24 @@ import { useState, useEffect } from 'react';
 
 const Dashboard: React.FC = () => {
     const { user, session } = useAuth();
-    const [stats, setStats] = useState<any>(null);
-    const [recentScans, setRecentScans] = useState<any[]>([]);
+    const [allScans, setAllScans] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                // Fetch public/global stats for the dashboard summary
-                const statsData = await apiClient.fetch('/stats');
-                setStats(statsData);
-
-                // Fetch real user scans if logged in
-                if (session) {
-                    const scansData = await apiClient.fetch('/scans', {}, session.access_token);
-                    setRecentScans(scansData.scans.slice(0, 3));
-                }
-            } catch (err) {
-                console.error("Error fetching dashboard data:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDashboardData();
+        if (!session) { setLoading(false); return; }
+        apiClient.fetch('/scans', {}, session.access_token)
+            .then(data => setAllScans(data.scans ?? []))
+            .catch(err => console.error("Error fetching scans:", err))
+            .finally(() => setLoading(false));
     }, [session]);
+
+    // Compute user-specific stats from their own scans only
+    const totalScans = allScans.length;
+    const avgConfidence = totalScans > 0
+        ? Math.round(allScans.reduce((sum, s) => sum + (s.confidence_score ?? 0), 0) / totalScans)
+        : 0;
+    const highRiskCount = allScans.filter(s => s.fraud_likelihood === 'high').length;
+    const recentScans = allScans.slice(0, 3);
 
     return (
         <div className="space-y-8">
@@ -48,9 +41,9 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <DashCard label="Verified Documents" value={stats?.total_scans || "0"} icon={<ShieldCheck className="text-green-500" />} />
-                <DashCard label="System Trust Score" value={stats?.avg_confidence ? `${stats.avg_confidence}%` : "0%"} icon={<Clock className="text-blue-500" />} />
-                <DashCard label="Risk Alerts" value={stats?.high_risk_count || "0"} icon={<AlertTriangle className="text-red-500" />} />
+                <DashCard label="My Scanned Documents" value={loading ? '—' : String(totalScans)} icon={<ShieldCheck className="text-green-500" />} />
+                <DashCard label="My Avg Confidence" value={loading ? '—' : `${avgConfidence}%`} icon={<Clock className="text-blue-500" />} />
+                <DashCard label="My Risk Alerts" value={loading ? '—' : String(highRiskCount)} icon={<AlertTriangle className="text-red-500" />} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -64,12 +57,14 @@ const Dashboard: React.FC = () => {
                             <RecentItem
                                 key={scan.id}
                                 label={scan.document_label || "Unnamed Document"}
-                                status={scan.fraud_likelihood === 'high' ? 'High Risk' : 'Safe'}
+                                status={scan.fraud_likelihood === 'high' ? 'High Risk' : scan.fraud_likelihood === 'medium' ? 'Medium Risk' : 'Safe'}
                                 date={new Date(scan.created_at).toLocaleDateString()}
-                                color={scan.fraud_likelihood === 'high' ? "text-red-500" : "text-green-500"}
+                                color={scan.fraud_likelihood === 'high' ? "text-red-500" : scan.fraud_likelihood === 'medium' ? "text-yellow-500" : "text-green-500"}
                             />
                         )) : (
-                            <p className="text-sm text-zinc-500">No recent scans found.</p>
+                            <p className="text-sm text-zinc-500">
+                                {loading ? 'Loading...' : 'No scans yet. Start by scanning your first document!'}
+                            </p>
                         )}
                     </div>
                 </div>

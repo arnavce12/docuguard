@@ -13,7 +13,7 @@ export const Navbar = () => {
                     <div className="p-2 bg-blue-500/10 rounded-xl group-hover:bg-blue-500/20 transition-all">
                         <Shield className="w-8 h-8 text-blue-500" />
                     </div>
-                    <span className="text-2xl font-bold tracking-tighter">DocuGuard</span>
+                    <span className="text-2xl font-bold tracking-tighter" style={{ background: 'linear-gradient(135deg, #60a5fa, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>DocuGuard</span>
                 </NavLink>
 
                 <div className="hidden md:flex items-center gap-1 bg-zinc-900/50 p-1.5 rounded-2xl border border-zinc-800">

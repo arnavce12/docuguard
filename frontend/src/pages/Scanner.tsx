@@ -72,8 +72,8 @@ const Scanner: React.FC = () => {
 
             {!result ? (
                 <div className="glass p-16 rounded-3xl border-dashed border-2 border-zinc-700 flex flex-col items-center justify-center space-y-8 hover:border-blue-500/30 transition-all group bg-zinc-900/20">
-                    <div className="p-6 bg-blue-500/10 rounded-2xl group-hover:bg-blue-500/20 transition-all">
-                        <Upload className="w-16 h-16 text-blue-500" />
+                    <div className="p-8 bg-blue-500/10 rounded-3xl group-hover:bg-blue-500/20 transition-all">
+                        <Upload className="w-24 h-24 text-blue-500" />
                     </div>
                     <div className="text-center space-y-2">
                         <p className="text-2xl font-bold">Verify Document Integrity</p>
@@ -105,7 +105,7 @@ const Scanner: React.FC = () => {
                         <button
                             onClick={handleUpload}
                             disabled={loading}
-                            className="px-12 py-4 bg-white text-black hover:bg-zinc-200 font-bold rounded-2xl flex items-center gap-3 transition-all shadow-xl active:scale-95 text-lg"
+                            className="px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl flex items-center gap-3 transition-all shadow-xl shadow-blue-600/30 active:scale-95 text-lg disabled:opacity-50"
                         >
                             {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Run Forensic Analysis'}
                         </button>

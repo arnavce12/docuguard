@@ -26,7 +26,7 @@ const History: React.FC = () => {
                     <input
                         type="text"
                         placeholder="Search scans..."
-                        className="pl-10 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg focus:outline-none focus:border-blue-500 transition-colors w-full md:w-64"
+                        className="pl-10 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg focus:outline-none focus:border-blue-500 transition-colors w-full md:w-64 text-white caret-white"
                     />
                 </div>
             </div>

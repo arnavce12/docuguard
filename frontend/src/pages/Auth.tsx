@@ -41,7 +41,7 @@ const Auth: React.FC = () => {
         <div className="max-w-md mx-auto py-20 space-y-8">
             <div className="text-center space-y-2">
                 <h1 className="text-3xl font-bold">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
-                <p className="text-zinc-500">{isLogin ? 'Enter your details to access your scans' : 'Join DocuGuard to protect your documents'}</p>
+                <p className="text-zinc-400">{isLogin ? 'Enter your details to access your scans' : 'Join DocuGuard to protect your documents'}</p>
             </div>
 
             <div className="glass p-8 rounded-3xl space-y-6">
@@ -54,20 +54,21 @@ const Auth: React.FC = () => {
                 <form onSubmit={handleAuth} className="space-y-4">
                     {!isLogin && (
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider ml-1">Full Name</label>
+                            <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider ml-1">Full Name</label>
                             <div className="relative">
                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                                 <input
                                     type="text"
                                     placeholder="John Doe"
-                                    className="w-full pl-12 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors"
+                                    className="w-full pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
+                                    style={{ paddingLeft: '3.25rem' }}
                                 />
                             </div>
                         </div>
                     )}
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider ml-1">Email Address</label>
+                        <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider ml-1">Email Address</label>
                         <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                             <input
@@ -76,13 +77,13 @@ const Auth: React.FC = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="name@company.com"
                                 required
-                                className="w-full pl-12 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors"
+                                className="w-full pl-12 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider ml-1">Password</label>
+                        <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider ml-1">Password</label>
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                             <input
@@ -91,7 +92,7 @@ const Auth: React.FC = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
                                 required
-                                className="w-full pl-12 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors"
+                                className="w-full pl-12 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
                             />
                         </div>
                     </div>
@@ -113,7 +114,7 @@ const Auth: React.FC = () => {
                 <div className="text-center">
                     <button
                         onClick={() => setIsLogin(!isLogin)}
-                        className="text-sm text-zinc-400 hover:text-white transition-colors"
+                        className="text-sm text-zinc-300 hover:text-white transition-colors bg-transparent border-none"
                     >
                         {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
                     </button>
