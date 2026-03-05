@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Upload, FileText, AlertTriangle, Loader2, Activity, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, FileText, AlertTriangle, Loader2, Activity, ShieldAlert, CheckCircle2, Camera } from 'lucide-react';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../lib/AuthContext';
 
@@ -10,6 +10,12 @@ const Scanner: React.FC = () => {
     const [saving, setSaving] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        // Detect mobile/tablet — capture="environment" only works on real mobile browsers
+        setIsMobile(/Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    }, []);
 
     const handleUpload = async () => {
         if (!file) return;
@@ -66,12 +72,12 @@ const Scanner: React.FC = () => {
                     <Activity className="w-3 h-3" />
                     <span>Real-time Forensic Engine</span>
                 </div>
-                <h1 className="text-5xl font-bold tracking-tight">AI-Powered <span className="text-blue-500">Document Integrity</span></h1>
-                <p className="text-zinc-400 text-lg">Experience the world's most advanced document forensic engine. Upload any document to see pixel-level tampering analysis.</p>
+                <h1 className="font-bold tracking-tight" style={{ fontSize: 'clamp(1.6rem, 6vw, 3rem)' }}>AI-Powered <span className="text-blue-500">Document Integrity</span></h1>
+                <p className="text-zinc-400" style={{ fontSize: 'clamp(0.9rem, 2vw, 1.125rem)' }}>Experience the world's most advanced document forensic engine. Upload any document to see pixel-level tampering analysis.</p>
             </div>
 
             {!result ? (
-                <div className="glass p-16 rounded-3xl border-dashed border-2 border-zinc-700 flex flex-col items-center justify-center space-y-8 hover:border-blue-500/30 transition-all group bg-zinc-900/20">
+                <div className="glass rounded-3xl border-dashed border-2 border-zinc-700 flex flex-col items-center justify-center space-y-8 hover:border-blue-500/30 transition-all group bg-zinc-900/20" style={{ padding: 'clamp(2rem, 6vw, 4rem)' }}>
                     <div className="p-8 bg-blue-500/10 rounded-3xl group-hover:bg-blue-500/20 transition-all">
                         <Upload className="w-24 h-24 text-blue-500" />
                     </div>
@@ -79,27 +85,48 @@ const Scanner: React.FC = () => {
                         <p className="text-2xl font-bold">Verify Document Integrity</p>
                         <p className="text-zinc-500">Drag and drop or tap to upload (PDF, JPG, PNG, WEBP)</p>
                     </div>
+                    {/* Hidden file input */}
                     <input
                         type="file"
                         className="hidden"
                         id="file-upload"
                         onChange={(e) => setFile(e.target.files?.[0] || null)}
                     />
-                    <div className="flex flex-col items-center gap-4">
+                    {/* Hidden camera input — only rendered on mobile */}
+                    {isMobile && (
+                        <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            id="camera-upload"
+                            onChange={(e) => setFile(e.target.files?.[0] || null)}
+                        />
+                    )}
+                    <div className="flex flex-wrap items-center justify-center gap-4">
                         <label
                             htmlFor="file-upload"
-                            className="px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all cursor-pointer shadow-xl shadow-blue-600/20 active:scale-95 text-lg"
+                            className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition-all cursor-pointer shadow-xl shadow-blue-600/20 active:scale-95 text-base flex items-center gap-2"
                         >
-                            Select Document
+                            <Upload className="w-4 h-4" /> Select Document
                         </label>
-                        {file && (
-                            <div className="flex items-center gap-3 px-4 py-2 bg-zinc-800/80 rounded-xl border border-zinc-700 animate-in fade-in slide-in-from-bottom-2">
-                                <FileText className="w-4 h-4 text-blue-400" />
-                                <span className="text-sm font-medium">{file.name}</span>
-                                <button onClick={() => setFile(null)} className="text-zinc-500 hover:text-white transition-colors">×</button>
-                            </div>
+                        {/* Camera button — only shown on mobile where capture works */}
+                        {isMobile && (
+                            <label
+                                htmlFor="camera-upload"
+                                className="px-8 py-4 bg-zinc-700 hover:bg-zinc-600 text-white font-bold rounded-2xl transition-all cursor-pointer active:scale-95 text-base flex items-center gap-2 border border-zinc-600"
+                            >
+                                <Camera className="w-4 h-4" /> Take Photo
+                            </label>
                         )}
                     </div>
+                    {file && (
+                        <div className="flex items-center gap-3 px-4 py-2 bg-zinc-800/80 rounded-xl border border-zinc-700">
+                            <FileText className="w-4 h-4 text-blue-400" />
+                            <span className="text-sm font-medium">{file.name}</span>
+                            <button onClick={() => setFile(null)} className="text-zinc-500 hover:text-white transition-colors">×</button>
+                        </div>
+                    )}
 
                     {file && (
                         <button

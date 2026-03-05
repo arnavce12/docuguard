@@ -13,10 +13,10 @@ const Landing: React.FC = () => {
                     <Zap className="w-4 h-4 fill-blue-400" />
                     <span>v1.0 is now live</span>
                 </div>
-                <h1 className="text-5xl md:text-8xl font-bold max-w-5xl leading-tight tracking-tighter">
+                <h1 className="font-bold max-w-5xl leading-tight tracking-tighter" style={{ fontSize: 'clamp(2rem, 8vw, 6rem)' }}>
                     The Future of <span className="text-blue-500">Document Trust</span> is Here
                 </h1>
-                <p className="text-zinc-400 text-xl max-w-2xl leading-relaxed">
+                <p className="text-zinc-400 max-w-2xl leading-relaxed" style={{ fontSize: 'clamp(0.95rem, 2.5vw, 1.25rem)' }}>
                     Instantly detect tampering, forgery, and digital fabrication in financial documents with the world's most advanced AI forensics engine.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">

@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
-                    <h1 className="text-4xl font-bold">User Dashboard</h1>
+                    <h1 className="font-bold" style={{ fontSize: 'clamp(1.75rem, 6vw, 2.5rem)' }}>User Dashboard</h1>
                     <p className="text-zinc-400">Welcome back, {user?.user_metadata?.full_name || 'User'}. Here is your security summary.</p>
                 </div>
                 <Link

@@ -68,10 +68,10 @@ const Analytics: React.FC = () => {
                         <Zap className="w-4 h-4" style={{ color: '#60a5fa' }} />
                         <span style={{ color: '#93c5fd', fontSize: '0.875rem', fontWeight: 600 }}>Live Platform Intelligence</span>
                     </div>
-                    <h1 className="text-5xl font-bold tracking-tighter">
+                    <h1 className="font-bold tracking-tighter" style={{ fontSize: 'clamp(1.75rem, 6vw, 3rem)' }}>
                         Global <span style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Forensic Analytics</span>
                     </h1>
-                    <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+                    <p className="text-zinc-400 max-w-2xl mx-auto" style={{ fontSize: 'clamp(0.875rem, 2vw, 1.125rem)' }}>
                         Real-time threat intelligence and detection performance across the entire DocuGuard network.
                     </p>
                 </div>
@@ -155,8 +155,8 @@ const Analytics: React.FC = () => {
                         const lowOffset = highLen + medLen;
 
                         return (
-                            <div className="flex flex-col items-center gap-8" style={{ borderTop: '1px solid rgba(63,63,70,0.4)', marginTop: '1.5rem', paddingTop: '2rem' }}>
-                                <div className="relative" style={{ width: '200px', height: '200px' }}>
+                            <div className="flex flex-col items-center gap-6" style={{ borderTop: '1px solid rgba(63,63,70,0.4)', marginTop: '1.5rem', paddingTop: '2rem' }}>
+                                <div className="relative" style={{ width: '100%', maxWidth: '220px', aspectRatio: '1 / 1' }}>
                                     <svg viewBox="0 0 120 120" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
                                         {/* Background ring */}
                                         <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(63,63,70,0.3)" strokeWidth="12" />
@@ -197,14 +197,23 @@ const Analytics: React.FC = () => {
                                             />
                                         )}
                                     </svg>
-                                    {/* Center label */}
-                                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '110px' }}>
-                                        <span className="text-3xl font-bold">{total}</span>
-                                        <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">Total</span>
+                                    {/* Center label — perfectly centered via flexbox and inset:0 */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        pointerEvents: 'none',
+                                        marginTop: '130px'
+                                    }}>
+                                        <span className="text-3xl font-bold" style={{ lineHeight: 1 }}>{total}</span>
+                                        <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider" style={{ marginTop: '10px', lineHeight: 1 }}>Total</span>
                                     </div>
                                 </div>
-                                {/* Legend */}
-                                <div className="flex items-center gap-6">
+                                {/* Legend — wraps on narrow screens */}
+                                <div className="flex flex-wrap items-center justify-center gap-4">
                                     {[
                                         { label: 'High', count: high, color: '#ef4444' },
                                         { label: 'Medium', count: medium, color: '#eab308' },

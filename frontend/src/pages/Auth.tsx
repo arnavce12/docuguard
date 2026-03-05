@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext.tsx';
@@ -12,6 +12,7 @@ const Auth: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -38,13 +39,13 @@ const Auth: React.FC = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto py-20 space-y-8">
+        <div className="max-w-md mx-auto space-y-8" style={{ padding: 'clamp(2rem, 8vw, 5rem) 0' }}>
             <div className="text-center space-y-2">
                 <h1 className="text-3xl font-bold">{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
                 <p className="text-zinc-400">{isLogin ? 'Enter your details to access your scans' : 'Join DocuGuard to protect your documents'}</p>
             </div>
 
-            <div className="glass p-8 rounded-3xl space-y-6">
+            <div className="glass rounded-3xl space-y-6" style={{ padding: 'clamp(1.25rem, 5vw, 2rem)' }}>
                 {error && (
                     <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm">
                         {error}
@@ -77,7 +78,8 @@ const Auth: React.FC = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="name@company.com"
                                 required
-                                className="w-full pl-12 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
+                                className="w-full pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
+                                style={{ paddingLeft: '3.25rem' }}
                             />
                         </div>
                     </div>
@@ -87,13 +89,25 @@ const Auth: React.FC = () => {
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                             <input
-                                type="password"
+                                type={showPassword ? 'text' : 'password'}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
                                 required
-                                className="w-full pl-12 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
+                                className="w-full pr-12 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
+                                style={{ paddingLeft: '3.25rem' }}
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(p => !p)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-transparent border-none text-zinc-500 hover:text-zinc-300 transition-colors"
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            >
+                                {showPassword
+                                    ? <Eye className="w-4 h-4" />
+                                    : <EyeOff className="w-4 h-4" />
+                                }
+                            </button>
                         </div>
                     </div>
 
