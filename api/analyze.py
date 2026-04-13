@@ -1,7 +1,7 @@
 import json
 from http.server import BaseHTTPRequestHandler
-from database import download_image, save_scan, supabase
-from gemini import analyze_document
+from core.database import download_image, save_scan, supabase
+from core.gemini import analyze_document
 
 def get_user_id(authorization: str) -> str:
     if not authorization or not authorization.startswith("Bearer "):

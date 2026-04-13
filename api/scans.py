@@ -1,7 +1,7 @@
 import json
 from urllib.parse import parse_qs, urlparse
 from http.server import BaseHTTPRequestHandler
-from database import get_user_scans, delete_user_scan, supabase
+from core.database import get_user_scans, delete_user_scan, supabase
 
 def get_user_id(authorization: str) -> str:
     if not authorization or not authorization.startswith("Bearer "):

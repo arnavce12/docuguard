@@ -1,6 +1,6 @@
 import json
 from http.server import BaseHTTPRequestHandler
-from database import get_public_stats
+from core.database import get_public_stats
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):

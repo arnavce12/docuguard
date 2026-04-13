@@ -1,7 +1,7 @@
 import json
 from http.server import BaseHTTPRequestHandler
-from database import download_image, save_scan
-from gemini import analyze_document
+from core.database import download_image, save_scan
+from core.gemini import analyze_document
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
