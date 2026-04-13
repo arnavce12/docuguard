@@ -37,6 +37,18 @@ def get_signed_url(storage_path: str) -> str:
     return response["signedURL"]
 
 
+def download_image(storage_path: str) -> bytes:
+    """Download image from Supabase storage into memory bytes."""
+    print(f"[DEBUG] Downloading from Supabase bucket: {BUCKET}, path: {storage_path}")
+    try:
+        data = supabase.storage.from_(BUCKET).download(storage_path)
+        print("[DEBUG] Download successful")
+        return data
+    except Exception as e:
+        print(f"[DEBUG] Download failed: {str(e)}")
+        raise e
+
+
 def save_scan(
     fraud_likelihood: str,
     confidence_score: int,

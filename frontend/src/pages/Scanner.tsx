@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Upload, FileText, AlertTriangle, Loader2, Activity, ShieldAlert, CheckCircle2, Camera } from 'lucide-react';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../lib/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const Scanner: React.FC = () => {
     const { session } = useAuth();
@@ -21,15 +22,27 @@ const Scanner: React.FC = () => {
         if (!file) return;
         setLoading(true);
         setSaveStatus('idle');
-        const formData = new FormData();
-        formData.append('file', file);
 
         try {
-            // If logged in, use the authenticated endpoint which saves to bucket and DB
-            const endpoint = session ? '/analyze' : '/analyze/public';
+            const ext = file.name.split('.').pop() || 'jpg';
+            const uuid = crypto.randomUUID();
+            const path = session ? `${session.user.id}/${uuid}.${ext}` : `public/${uuid}.${ext}`;
+
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('documents')
+                .upload(path, file);
+
+            if (uploadError) throw uploadError;
+
+            const storage_path = uploadData.path;
+            const endpoint = session ? '/analyze' : '/analyze_public';
             const token = session?.access_token;
 
-            const data = await apiClient.upload(endpoint, formData, token);
+            const data = await apiClient.fetch(endpoint, {
+                method: 'POST',
+                body: JSON.stringify({ storage_path })
+            }, token);
+            
             setResult(data);
         } catch (err) {
             console.error(err);
