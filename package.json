@@ -3,9 +3,9 @@
     "private": true,
     "scripts": {
         "dev:frontend": "cd frontend && npm run dev",
-        "dev:backend": "cd backend && python -m uvicorn main:app --reload --port 8000",
-        "dev": "npx concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-        "install:all": "cd frontend && npm install && cd ../backend && python -m pip install -r requirements.txt"
+        "dev:api": "vercel dev",
+        "dev": "npx concurrently \"npm run dev:frontend\" \"npm run dev:api\"",
+        "install:all": "cd frontend && npm install && cd ../api && python -m pip install -r requirements.txt"
     },
     "devDependencies": {
         "concurrently": "^8.2.2"
