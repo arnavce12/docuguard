@@ -5,7 +5,7 @@ import { useAuth } from '../lib/AuthContext';
 import { useState, useEffect } from 'react';
 
 const Dashboard: React.FC = () => {
-    const { user, session } = useAuth();
+    const { session } = useAuth();
     const navigate = useNavigate();
     const [history, setHistory] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -234,18 +234,15 @@ const RecentItem = ({ item }: { item: any }) => {
     
     // Determine colors
     let badgeColor = "bg-green-500/10 text-green-500 border-green-500/20";
-    let iconClass = "text-green-500";
     let badgeText = "Safe";
     let Icon = CheckCircle;
 
     if (isFraud && isHighRisk) {
         badgeColor = item.result === 'high' ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-orange-500/10 text-orange-500 border-orange-500/20";
-        iconClass = item.result === 'high' ? "text-red-500" : "text-orange-500";
         badgeText = `${item.result} Risk`;
         Icon = AlertTriangle;
     } else if (!isFraud) {
         badgeColor = "bg-purple-500/10 text-purple-400 border-purple-500/20";
-        iconClass = "text-purple-500";
         badgeText = "Profiled";
         Icon = FileSearch;
     }
