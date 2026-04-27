@@ -16,9 +16,16 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
+import logging
+
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # Load env vars from api/.env when running locally
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+
+logger = logging.getLogger("uvicorn.error")
 
 from core.database import (
     download_image,
@@ -47,9 +54,15 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+frontend_urls = os.getenv("FRONTEND_URLS", "http://localhost:5173,http://localhost:3000").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # tighten this in production
+    allow_origins=frontend_urls,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -95,21 +108,25 @@ class RenameRequest(BaseModel):
 # ---------------------------------------------------------------------------
 
 @app.get("/api/health")
-def health_check():
+@limiter.limit("60/minute")
+def health_check(request: Request):
     """Simple liveness probe."""
     return {"status": "ok"}
 
 
 @app.get("/api/stats")
-def stats():
+@limiter.limit("20/minute")
+def stats(request: Request):
     """Public aggregated scan statistics."""
     try:
         return get_public_stats()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error fetching stats: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @app.post("/api/analyze")
+@limiter.limit("5/minute")
 def analyze(body: AnalyzeRequest, request: Request):
     """
     Authenticated document fraud analysis.
@@ -135,11 +152,13 @@ def analyze(body: AnalyzeRequest, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Error analyzing document: {str(e)}")
+        raise HTTPException(status_code=400, detail="Error analyzing document")
 
 
 @app.post("/api/analyze-public")
-def analyze_public(body: AnalyzePublicRequest):
+@limiter.limit("5/minute")
+def analyze_public(body: AnalyzePublicRequest, request: Request):
     """
     Public (unauthenticated) document fraud analysis.
     Only aggregate stats are saved; no user data is stored.
@@ -157,10 +176,12 @@ def analyze_public(body: AnalyzePublicRequest):
         )
         return result
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Error analyzing public document: {str(e)}")
+        raise HTTPException(status_code=400, detail="Error analyzing public document")
 
 
 @app.post("/api/kyd")
+@limiter.limit("5/minute")
 def kyd(body: KydRequest, request: Request):
     """
     Know Your Document — authenticated analysis that identifies document type,
@@ -187,10 +208,12 @@ def kyd(body: KydRequest, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Error analyzing KYD document: {str(e)}")
+        raise HTTPException(status_code=400, detail="Error analyzing KYD document")
 
 
 @app.get("/api/scans")
+@limiter.limit("30/minute")
 def list_scans(request: Request):
     """Return all scans for the authenticated user, newest first."""
     user_id = get_user_id(request)
@@ -200,10 +223,12 @@ def list_scans(request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Error listing scans: {str(e)}")
+        raise HTTPException(status_code=400, detail="Error retrieving scans")
 
 
 @app.delete("/api/scans")
+@limiter.limit("10/minute")
 def delete_scan(id: str, request: Request):
     """Delete a specific scan by its ID (must belong to the authenticated user)."""
     user_id = get_user_id(request)
@@ -215,10 +240,12 @@ def delete_scan(id: str, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Error deleting scan: {str(e)}")
+        raise HTTPException(status_code=400, detail="Error deleting scan")
 
 
 @app.get("/api/history")
+@limiter.limit("30/minute")
 def unified_history(request: Request):
     """Return unified history of all scans (KYD + Fraud) for the authenticated user, newest first."""
     user_id = get_user_id(request)
@@ -255,10 +282,12 @@ def unified_history(request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error fetching history: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @app.delete("/api/history")
+@limiter.limit("10/minute")
 def delete_history_item(id: str, type: str, request: Request):
     """Delete a specific scan from history based on its type."""
     user_id = get_user_id(request)
@@ -277,10 +306,12 @@ def delete_history_item(id: str, type: str, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error(f"Error deleting history item: {str(e)}")
+        raise HTTPException(status_code=400, detail="Error deleting history item")
 
 
 @app.patch("/api/history")
+@limiter.limit("10/minute")
 def rename_history_item(body: RenameRequest, request: Request):
     """Update the display name of a scan or KYD analysis."""
     user_id = get_user_id(request)
@@ -292,15 +323,22 @@ def rename_history_item(body: RenameRequest, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error renaming item: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @app.get("/api/signed-url")
+@limiter.limit("30/minute")
 def get_file_url(path: str, request: Request):
     """Generate a signed URL for a private storage path."""
     user_id = get_user_id(request)
     print(f"[DEBUG] Signed URL request - path: {path}, user_id: {user_id}")
     
+    # Path traversal protection
+    if ".." in path or "\\" in path:
+        logger.warning(f"Path traversal attempt blocked: {path}")
+        raise HTTPException(status_code=400, detail="Invalid path structure")
+        
     if not path.startswith(f"{user_id}/") and not path.startswith("public/"):
         print(f"[DEBUG] Unauthorized access attempt - path: {path}, user_id: {user_id}")
         raise HTTPException(status_code=403, detail="Unauthorized access to this file")
@@ -310,5 +348,5 @@ def get_file_url(path: str, request: Request):
         print(f"[DEBUG] Signed URL generated: {url}")
         return {"url": url}
     except Exception as e:
-        print(f"[DEBUG] Error generating signed URL: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error generating signed URL: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

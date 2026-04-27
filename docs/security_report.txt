@@ -1,0 +1,50 @@
+# DocuGuard Security Analysis & Remediation Report
+
+## 1. Executive Summary
+A comprehensive cybersecurity review was conducted on the DocuGuard application prior to production deployment. The analysis identified several medium to high severity vulnerabilities within the API layer, including overly permissive CORS configurations, absence of rate limiting, potential path traversal in file retrieval, and information exposure through overly verbose error handling. All identified vulnerabilities in the backend codebase have been successfully remediated.
+
+## 2. Vulnerabilities Identified and Remediated
+
+### 2.1 Overly Permissive CORS (Cross-Origin Resource Sharing)
+*   **Status**: Remediated
+*   **Description**: The API middleware allowed requests from any origin (`["*"]`). This could allow unauthorized web pages to perform actions on behalf of an authenticated user.
+*   **Fix Applied**: Updated `api/index.py` and legacy handlers to strictly use an environment variable (`FRONTEND_URLS`) for allowed origins. 
+
+### 2.2 Missing Rate Limiting (DoS Risk)
+*   **Status**: Remediated
+*   **Description**: The application lacked request throttling. Malicious users could flood the API, causing a Denial of Service (DoS) and potentially exhausting the Gemini API quota or Supabase database connections.
+*   **Fix Applied**: Initialized the `slowapi` module across all endpoints in `api/index.py`. Different limits were applied based on the resource intensity (e.g., `5/minute` for AI analysis, `30/minute` for data retrieval).
+
+### 2.3 Potential Path Traversal
+*   **Status**: Remediated
+*   **Description**: The `/api/signed-url` endpoint utilized user-provided paths without checking for directory traversal sequences (e.g., `../`).
+*   **Fix Applied**: Implemented strict validation to reject paths containing `..` or `\\` before interacting with the Supabase storage client.
+
+### 2.4 Information Exposure in Error Handling
+*   **Status**: Remediated
+*   **Description**: Unhandled exceptions were passed directly to HTTP responses. This could leak internal stack traces or database schema information to an attacker.
+*   **Fix Applied**: Exceptions are now caught, logged internally using standard Python `logging`, and sanitized generic error messages are returned to the client.
+
+---
+
+## 3. Production Deployment Security Recommendations
+
+As the project moves to deployment, the following infrastructure-level security settings are highly recommended:
+
+### 3.1 Supabase Configuration
+1.  **Row Level Security (RLS)**: Ensure RLS is strictly ENABLED for the `scans` and `kyd_analyses` tables. Policies must explicitly check `auth.uid() = user_id` for all `SELECT`, `INSERT`, `UPDATE`, and `DELETE` operations.
+2.  **Storage Privacy**: Confirm the `documents` bucket is set to **PRIVATE**. No public access should be allowed. All file access must route through the signed URL mechanism.
+3.  **Database Access**: Disable direct Postgres connections from the public internet if not needed, or ensure complex, securely rotated passwords are used.
+4.  **Auth Providers**: Disable any unused authentication methods (e.g., Email/Password if only using OAuth, or vice versa) to reduce the attack surface.
+
+### 3.2 Vercel Configuration
+1.  **Environment Variables**: Ensure production API keys (`GEMINI_API_KEY`, `SUPABASE_SERVICE_KEY`) are scoped strictly to the `Production` environment in Vercel, and not accessible in `Preview` or `Development` unless necessary.
+2.  **Edge Rate Limiting**: Consider enabling Vercel's Edge Middleware rate limiting. While `slowapi` protects the Python backend, Vercel Edge limits can prevent traffic spikes from consuming Vercel function execution bills.
+3.  **Security Headers**: Add strict security headers to `vercel.json` to prevent clickjacking and XSS. Add the following to your `vercel.json` rewrites or headers block:
+    *   `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+    *   `X-Content-Type-Options: nosniff`
+    *   `X-Frame-Options: DENY`
+    *   `Content-Security-Policy: default-src 'self';` (Customize as needed for Supabase/Gemini domains).
+
+## 4. Conclusion
+The application codebase is now fortified against common web vulnerabilities (OWASP Top 10). Following the infrastructure recommendations for Vercel and Supabase will ensure a robust security posture in the production environment.

@@ -12,15 +12,17 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import HealthScore from './pages/HealthScore';
 import { AuthProvider } from './lib/AuthContext.tsx';
+import { ThemeProvider } from './lib/ThemeContext.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import './App.css';
 
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <Layout>
-          <Routes>
+      <ThemeProvider>
+        <AuthProvider>
+          <Layout>
+            <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
@@ -35,7 +37,8 @@ function App() {
           </Routes>
         </Layout>
       </AuthProvider>
-    </Router>
+    </ThemeProvider>
+  </Router>
   );
 }
 

@@ -1,11 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import { Shield, LayoutDashboard, History as HistoryIcon, PieChart, Menu, X, Search } from 'lucide-react';
+import { Shield, LayoutDashboard, History as HistoryIcon, PieChart, Menu, X, Search, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext.tsx';
+import { useTheme } from '../lib/ThemeContext.tsx';
 import { useState, useEffect } from 'react';
 
 export const Navbar = () => {
     const { user, signOut } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const [menuOpen, setMenuOpen] = useState(false);
     const location = useLocation();
 
@@ -33,7 +35,7 @@ export const Navbar = () => {
                         </div>
                         <span
                             className="text-2xl font-bold tracking-tighter"
-                            style={{ background: 'linear-gradient(135deg, #60a5fa, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+                            style={{ color: 'var(--text-primary)' }}
                         >
                             DocuGuard
                         </span>
@@ -52,8 +54,15 @@ export const Navbar = () => {
                         <NavItem to="/analytics" icon={<PieChart className="w-4 h-4" />} label="Analytics" />
                     </div>
 
-                    {/* Desktop auth buttons */}
-                    <div className="nav-desktop-auth">
+                    {/* Desktop auth buttons & Theme Toggle */}
+                    <div className="nav-desktop-auth flex items-center gap-4">
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2.5 glass rounded-xl text-zinc-400 hover:text-white transition-all border border-zinc-800 shadow-sm"
+                            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                        >
+                            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                        </button>
                         {!user ? (
                             <>
                                 <NavLink to="/auth" className="px-5 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">Login</NavLink>
@@ -62,7 +71,7 @@ export const Navbar = () => {
                         ) : (
                             <button
                                 onClick={() => signOut()}
-                                className="px-6 py-2.5 text-sm font-bold bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition-all active:scale-95 border border-zinc-700"
+                                className="px-6 py-2.5 text-sm font-bold bg-zinc-800 hover:bg-zinc-700 text-primary rounded-xl transition-all active:scale-95 border border-zinc-800"
                             >
                                 Logout
                             </button>
@@ -70,16 +79,24 @@ export const Navbar = () => {
                     </div>
 
                     {/* Hamburger button — mobile only */}
-                    <button
-                        className="nav-hamburger"
-                        onClick={() => setMenuOpen(prev => !prev)}
-                        aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-                    >
-                        {menuOpen
-                            ? <X className="w-6 h-6 text-white" />
-                            : <Menu className="w-6 h-6 text-white" />
-                        }
-                    </button>
+                    <div className="flex items-center gap-3 md:hidden">
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 glass rounded-xl text-zinc-400"
+                        >
+                            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                        </button>
+                        <button
+                            className="nav-hamburger"
+                            onClick={() => setMenuOpen(prev => !prev)}
+                            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                        >
+                            {menuOpen
+                                ? <X className="w-6 h-6 text-white" />
+                                : <Menu className="w-6 h-6 text-white" />
+                            }
+                        </button>
+                    </div>
                 </div>
             </nav>
 
@@ -144,7 +161,7 @@ const NavItem = ({ to, icon, label }: { to: string; icon: ReactNode; label: stri
         className={({ isActive }) =>
             `flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${isActive
                 ? 'bg-zinc-800 text-blue-500 shadow-sm'
-                : 'text-zinc-500 hover:text-white hover:bg-zinc-800/50'
+                : 'text-zinc-500 hover:text-primary hover:bg-zinc-800/50'
             }`
         }
     >

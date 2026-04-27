@@ -49,8 +49,8 @@ const Dashboard: React.FC = () => {
                         <Activity className="w-3 h-3 text-blue-400" />
                         <span>Command Center</span>
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white drop-shadow-sm">Overview</h1>
-                    <p className="text-zinc-300 text-lg">Your document security and identity profile summary.</p>
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-primary drop-shadow-sm">Overview</h1>
+                    <p className="text-secondary text-lg">Your document security and identity profile summary.</p>
                 </div>
             </div>
 
@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
                     {/* Quick Actions Panel */}
                     <div className="glass p-8 rounded-3xl space-y-6 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl"></div>
-                        <h3 className="text-xl font-bold flex items-center gap-2 relative z-10 text-white">
+                        <h3 className="text-xl font-bold flex items-center gap-2 relative z-10 text-primary">
                             <ArrowUpRight className="w-5 h-5 text-purple-500" /> Quick Actions
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
@@ -220,9 +220,9 @@ const DashCard = ({ label, value, subtitle, icon, accent }: any) => {
             <div className="space-y-1">
                 <p className={`text-[10px] font-bold uppercase tracking-widest ${textColors[accent]}`}>{label}</p>
                 <div className="flex items-baseline gap-2">
-                    <p className={`text-4xl font-black tracking-tight ${textColors[accent]}`}>{value}</p>
+                    <p className="text-4xl font-black tracking-tight text-primary">{value}</p>
                 </div>
-                {subtitle && <p className={`text-xs font-medium leading-tight mt-1 ${textColors[accent]}`}>{subtitle}</p>}
+                {subtitle && <p className="text-xs font-medium leading-tight mt-1 text-secondary">{subtitle}</p>}
             </div>
         </div>
     );
@@ -257,8 +257,8 @@ const RecentItem = ({ item }: { item: any }) => {
                     <Icon className="w-5 h-5" />
                 </div>
                 <div>
-                    <p className="font-bold text-[15px] text-zinc-100 line-clamp-1 group-hover:text-white transition-colors">{item.document_name}</p>
-                    <p className="text-[13px] text-zinc-400 font-medium mt-0.5">
+                    <p className="font-bold text-[15px] text-primary line-clamp-1 group-hover:text-blue-500 transition-colors">{item.document_name}</p>
+                    <p className="text-[13px] text-secondary font-medium mt-0.5">
                         {new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </p>
                 </div>

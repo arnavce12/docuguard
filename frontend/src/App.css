@@ -12,7 +12,77 @@
   --warning: #eab308;
   --danger: #ef4444;
   --radius: 12px;
+  --bg-secondary: #18181b;
+  --bg-secondary-rgb: 24, 24, 27;
+  --bg-tertiary: #27272a;
+  --bg-tertiary-rgb: 39, 39, 42;
+  --glass-bg: rgba(20, 20, 20, 0.6);
+  --mesh-opacity: 0.06;
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+[data-theme='light'] {
+  --bg-dark: #f8fafc;
+  --bg-card: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border: #e2e8f0;
+  --bg-secondary: #f8fafc;
+  --bg-secondary-rgb: 248, 250, 252;
+  --bg-tertiary: #f1f5f9;
+  --bg-tertiary-rgb: 241, 245, 249;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --mesh-opacity: 0.12;
+  --hero-gradient: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.04), rgba(6, 182, 212, 0.03));
+  --flag-item-bg: linear-gradient(135deg, rgba(241, 245, 249, 0.8), rgba(241, 245, 249, 0.4));
+}
+
+[data-theme='light'] body,
+[data-theme='light'] h1,
+[data-theme='light'] h2,
+[data-theme='light'] h3,
+[data-theme='light'] h4,
+[data-theme='light'] p,
+[data-theme='light'] span:not(.text-white):not(.text-blue-500):not(.text-purple-500):not(.text-green-500):not(.text-red-500):not(.text-yellow-500) {
+  color: var(--text-primary);
+}
+
+[data-theme='light'] .text-zinc-400,
+[data-theme='light'] .text-zinc-300,
+[data-theme='light'] .text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+/* Specific UI Overrides for Light Mode */
+[data-theme='light'] .bg-zinc-900,
+[data-theme='light'] .bg-zinc-900\/80,
+[data-theme='light'] .bg-zinc-900\/50 {
+  background-color: var(--bg-secondary) !important;
+}
+
+[data-theme='light'] .bg-zinc-800,
+[data-theme='light'] .bg-zinc-800\/80,
+[data-theme='light'] .bg-zinc-800\/50,
+[data-theme='light'] .bg-zinc-800\/30 {
+  background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme='light'] .border-zinc-800,
+[data-theme='light'] .border-zinc-700 {
+  border-color: var(--border) !important;
+}
+
+[data-theme='light'] input::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme='light'] .text-zinc-500 {
+  color: #64748b !important; /* Slightly darker for better visibility */
+}
+
+[data-theme='light'] .bg-zinc-900\/80 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-color: #e2e8f0 !important;
 }
 
 * {
@@ -44,9 +114,9 @@ body::before {
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 15% 25%, rgba(59, 130, 246, 0.06) 0%, transparent 60%),
-    radial-gradient(circle at 85% 75%, rgba(139, 92, 246, 0.06) 0%, transparent 60%),
-    radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 80%);
+    radial-gradient(circle at 15% 25%, rgba(59, 130, 246, var(--mesh-opacity)) 0%, transparent 60%),
+    radial-gradient(circle at 85% 75%, rgba(139, 92, 246, var(--mesh-opacity)) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, rgba(6, 182, 212, calc(var(--mesh-opacity) / 2)) 0%, transparent 80%);
   pointer-events: none;
   z-index: -2;
   animation: bg-pulse 12s ease-in-out infinite alternate;
@@ -135,6 +205,10 @@ body::before {
 
 /* Tablet and up (≥768px) */
 @media (min-width: 768px) {
+  .md\:hidden {
+    display: none;
+  }
+
   .md\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -445,7 +519,7 @@ body::before {
 }
 
 .text-zinc-300 {
-  color: #d4d4d8;
+  color: var(--text-secondary);
 }
 
 .text-zinc-400 {
@@ -462,6 +536,14 @@ body::before {
 
 .text-white {
   color: #ffffff;
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
 }
 
 .text-yellow-500 {
@@ -525,11 +607,19 @@ body::before {
 }
 
 .bg-zinc-900 {
-  background-color: #18181b;
+  background-color: var(--bg-secondary);
 }
 
 .bg-zinc-900\/50 {
-  background-color: rgba(24, 24, 27, 0.5);
+  background-color: rgba(var(--bg-secondary-rgb), 0.5);
+}
+
+.bg-zinc-800\/50 {
+  background-color: rgba(var(--bg-tertiary-rgb), 0.5);
+}
+
+.bg-zinc-800 {
+  background-color: var(--bg-tertiary);
 }
 
 .bg-red-500\/10 {
@@ -743,10 +833,14 @@ body::before {
 }
 
 .glass {
-  background: rgba(20, 20, 20, 0.6);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
+}
+
+[data-theme='light'] .glass {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05);
 }
 
 .container {
@@ -785,6 +879,12 @@ body::before {
 
 .hidden {
   display: none;
+}
+
+@media (min-width: 768px) {
+  .md\:hidden {
+    display: none !important;
+  }
 }
 
 @media (min-width: 768px) {
@@ -912,7 +1012,7 @@ body::before {
   border-radius: 1.5rem;
   overflow: hidden;
   border: 1px solid rgba(59, 130, 246, 0.15);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.06), rgba(6, 182, 212, 0.05));
+  background: var(--hero-gradient, linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.06), rgba(6, 182, 212, 0.05)));
 }
 
 .analytics-hero-glow {
@@ -972,10 +1072,10 @@ body::before {
 
 /* Main content cards */
 .analytics-card {
-  background: rgba(20, 20, 20, 0.6);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(63, 63, 70, 0.4);
+  border: 1px solid var(--border);
   padding: 2rem;
   border-radius: 1.5rem;
   display: flex;
@@ -995,8 +1095,8 @@ body::before {
   justify-content: space-between;
   padding: 1rem 1.25rem;
   border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(39, 39, 42, 0.5), rgba(39, 39, 42, 0.3));
-  border: 1px solid rgba(63, 63, 70, 0.4);
+  background: var(--flag-item-bg, linear-gradient(135deg, rgba(39, 39, 42, 0.5), rgba(39, 39, 42, 0.3)));
+  border: 1px solid var(--border);
   transition: all 0.2s ease;
   animation: analytics-slideIn 0.4s ease-out both;
 }
@@ -1140,10 +1240,10 @@ body::before {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    background: rgba(9, 9, 11, 0.5);
+    background: var(--glass-bg);
     padding: 0.375rem;
     border-radius: 1rem;
-    border: 1px solid rgba(39, 39, 42, 1);
+    border: 1px solid var(--border);
   }
 
   .nav-desktop-auth {

@@ -200,16 +200,19 @@ const Analytics: React.FC = () => {
                                     {/* Center label — perfectly centered via flexbox and inset:0 */}
                                     <div style={{
                                         position: 'absolute',
-                                        inset: 0,
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         pointerEvents: 'none',
-                                        marginTop: '130px'
+                                        width: '100%',
+                                        paddingTop: '190px'
                                     }}>
                                         <span className="text-3xl font-bold" style={{ lineHeight: 1 }}>{total}</span>
-                                        <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider" style={{ marginTop: '10px', lineHeight: 1 }}>Total</span>
+                                        <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider" style={{ marginTop: '8px', lineHeight: 1 }}>Total</span>
                                     </div>
                                 </div>
                                 {/* Legend — wraps on narrow screens */}
