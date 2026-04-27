@@ -25,6 +25,9 @@ from slowapi.errors import RateLimitExceeded
 # Load env vars from api/.env when running locally
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
+import sys
+sys.path.append(os.path.dirname(__file__))
+
 logger = logging.getLogger("uvicorn.error")
 
 from core.database import (
