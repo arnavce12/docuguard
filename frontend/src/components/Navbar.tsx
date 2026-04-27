@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import { Shield, LayoutDashboard, History as HistoryIcon, PieChart, Menu, X } from 'lucide-react';
+import { Shield, LayoutDashboard, History as HistoryIcon, PieChart, Menu, X, Search } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext.tsx';
 import { useState, useEffect } from 'react';
 
@@ -44,6 +44,7 @@ export const Navbar = () => {
                         {user && (
                             <>
                                 <NavItem to="/dashboard" icon={<LayoutDashboard className="w-4 h-4" />} label="Dashboard" />
+                                <NavItem to="/kyd" icon={<Search className="w-4 h-4" />} label="KYD" />
                                 <NavItem to="/scanner" icon={<Shield className="w-4 h-4" />} label="Scanner" />
                                 <NavItem to="/history" icon={<HistoryIcon className="w-4 h-4" />} label="History" />
                             </>
@@ -94,6 +95,7 @@ export const Navbar = () => {
                         {user && (
                             <>
                                 <MobNavItem to="/dashboard" icon={<LayoutDashboard className="w-5 h-5" />} label="Dashboard" onClick={close} />
+                                <MobNavItem to="/kyd" icon={<Search className="w-5 h-5" />} label="KYD" onClick={close} />
                                 <MobNavItem to="/scanner" icon={<Shield className="w-5 h-5" />} label="Scanner" onClick={close} />
                                 <MobNavItem to="/history" icon={<HistoryIcon className="w-5 h-5" />} label="History" onClick={close} />
                             </>

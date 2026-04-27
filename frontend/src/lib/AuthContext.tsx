@@ -18,21 +18,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Sign out on every page load/refresh so the session never persists across browser sessions
-        supabase.auth.signOut().then(() => {
-            setSession(null);
-            setUser(null);
-            setLoading(false);
+        let mounted = true;
+
+        // 1. Get initial session on page load
+        supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+            if (mounted) {
+                if (initialSession) {
+                    setSession(initialSession);
+                    setUser(initialSession.user);
+                }
+                setLoading(false);
+            }
         });
 
-        // Listen for auth changes (login/logout during the session)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
+        // 2. Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+            if (mounted) {
+                console.log("Auth Event:", event);
+                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+                    setSession(newSession);
+                    setUser(newSession?.user ?? null);
+                } else if (event === 'SIGNED_OUT') {
+                    setSession(null);
+                    setUser(null);
+                }
+                setLoading(false);
+            }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
     }, []);
 
     const signOut = async () => {

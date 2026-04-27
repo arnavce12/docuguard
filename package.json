@@ -2,9 +2,9 @@
     "name": "docuguard-monorepo",
     "private": true,
     "scripts": {
+        "dev:api": "cd api && python -m uvicorn index:app --reload --port 8000",
         "dev:frontend": "cd frontend && npm run dev",
-        "dev:api": "vercel dev",
-        "dev": "npx concurrently \"npm run dev:frontend\" \"npm run dev:api\"",
+        "dev": "npx concurrently \"npm run dev:api\" \"npm run dev:frontend\"",
         "install:all": "cd frontend && npm install && cd ../api && python -m pip install -r requirements.txt"
     },
     "devDependencies": {

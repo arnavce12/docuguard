@@ -1,5 +1,4 @@
-const RAW_BASE_URL = import.meta.env.VITE_API_URL || '/api';
-const BASE_URL = RAW_BASE_URL.replace(/\/$/, '');
+const BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 
 export const apiClient = {
     async fetch(endpoint: string, options: RequestInit = {}, token?: string) {

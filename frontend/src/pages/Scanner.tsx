@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Upload, FileText, AlertTriangle, Loader2, Activity, ShieldAlert, CheckCircle2, Camera } from 'lucide-react';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../lib/AuthContext';
@@ -6,17 +7,25 @@ import { supabase } from '../lib/supabase';
 
 const Scanner: React.FC = () => {
     const { session } = useAuth();
-    const [file, setFile] = useState<File | null>(null);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [file, setFile] = useState<File | null>(() => location.state?.preloadedFile || null);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [isMobile, setIsMobile] = useState(false);
+    const [isRenaming, setIsRenaming] = useState(false);
+    const [tempName, setTempName] = useState('');
+    const [renameLoading, setRenameLoading] = useState(false);
 
     useEffect(() => {
         // Detect mobile/tablet — capture="environment" only works on real mobile browsers
         setIsMobile(/Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-    }, []);
+        if (location.state?.preloadedFile && !file) {
+            setFile(location.state.preloadedFile);
+        }
+    }, [location.state]);
 
     const handleUpload = async () => {
         if (!file) return;
@@ -75,6 +84,28 @@ const Scanner: React.FC = () => {
             setSaveStatus('error');
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleRename = async () => {
+        if (!result?.scan_id || !tempName.trim()) return;
+        setRenameLoading(true);
+        try {
+            await apiClient.fetch('/history', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    id: result.scan_id,
+                    type: 'fraud',
+                    new_name: tempName.trim()
+                })
+            }, session?.access_token);
+            setResult({ ...result, document_label: tempName.trim() });
+            setIsRenaming(false);
+        } catch (err) {
+            console.error(err);
+            alert("Failed to rename document.");
+        } finally {
+            setRenameLoading(false);
         }
     };
 
@@ -167,6 +198,25 @@ const Scanner: React.FC = () => {
                                     </div>
                                 </div>
                                 <p className="text-xl text-zinc-300 leading-relaxed font-medium">{result.explanation}</p>
+                                
+                                {result.fraud_likelihood === 'low' && result.health_score && (
+                                    <div className="pt-4">
+                                        <button
+                                            onClick={() => navigate('/results/health-score', {
+                                                state: {
+                                                    health_score: result.health_score,
+                                                    fileName: file?.name || 'Document'
+                                                }
+                                            })}
+                                            className="px-6 py-3 bg-green-500/20 text-green-400 font-bold rounded-xl border border-green-500/30 hover:bg-green-500/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-green-500/10 flex items-center gap-2"
+                                        >
+                                            <Activity className="w-5 h-5" /> View Health Score
+                                        </button>
+                                    </div>
+                                )}
+                                {result.fraud_likelihood === 'low' && !result.health_score && (
+                                    <p className="text-xs text-zinc-500 italic mt-2">Health score unavailable for this document</p>
+                                )}
                             </div>
 
                             <div className="glass p-8 rounded-3xl space-y-6">
@@ -194,15 +244,57 @@ const Scanner: React.FC = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <p className="font-bold text-lg">Full Report Prepared</p>
-                                    <p className="text-sm text-zinc-400">Save this analysis to your permanent history for legal or compliance records.</p>
+                                    <div className="flex flex-col items-center gap-2 group/name">
+                                        {isRenaming ? (
+                                            <div className="flex items-center gap-2 w-full max-w-xs">
+                                                <input 
+                                                    type="text" 
+                                                    value={tempName}
+                                                    onChange={(e) => setTempName(e.target.value)}
+                                                    className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm w-full focus:outline-none focus:border-blue-500"
+                                                    autoFocus
+                                                />
+                                                <button 
+                                                    onClick={handleRename}
+                                                    disabled={renameLoading}
+                                                    className="p-1.5 bg-blue-600 rounded-lg text-white disabled:opacity-50"
+                                                >
+                                                    {renameLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                                                </button>
+                                                <button 
+                                                    onClick={() => setIsRenaming(false)}
+                                                    className="p-1.5 bg-zinc-800 rounded-lg text-zinc-400"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+                                                    {result.document_label || "Unnamed Document"}
+                                                </span>
+                                                <button 
+                                                    onClick={() => {
+                                                        setTempName(result.document_label || "");
+                                                        setIsRenaming(true);
+                                                    }}
+                                                    className="opacity-0 group-hover/name:opacity-100 transition-opacity p-1 text-zinc-500 hover:text-white"
+                                                    title="Rename document"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-zinc-400">Analysis permanently stored in your forensic history.</p>
                                 </div>
                                 {session ? (
                                     <button
                                         onClick={handleSaveToHistory}
                                         disabled={saving || saveStatus === 'success'}
-                                        className={`w-full py-4 font-bold rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 ${saveStatus === 'success'
+                                        className={`w-full py-4 font-bold rounded-2xl transition-all duration-300 shadow-lg hover:-translate-y-1 flex items-center justify-center gap-2 ${saveStatus === 'success'
                                             ? 'bg-green-600 text-white'
-                                            : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20'
+                                            : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20 hover:shadow-blue-600/30'
                                             }`}
                                     >
                                         {saving ? <Loader2 className="w-5 h-5 animate-spin" /> :

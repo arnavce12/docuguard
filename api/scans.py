@@ -22,6 +22,9 @@ class handler(BaseHTTPRequestHandler):
             
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, DELETE, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
             self.end_headers()
             self.wfile.write(json.dumps({"scans": scans}).encode('utf-8'))
         except Exception as e:
@@ -48,6 +51,9 @@ class handler(BaseHTTPRequestHandler):
                 
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, DELETE, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
             self.end_headers()
             self.wfile.write(json.dumps({"message": "Scan deleted successfully"}).encode('utf-8'))
         except Exception as e:
