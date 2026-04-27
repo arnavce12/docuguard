@@ -42,6 +42,6 @@ Thumbs.db
 # Project specific
 backend/__pycache__
 backend/venv
-docs(instruction)
+docs(instructions)
 .vercel
 .env*.local
