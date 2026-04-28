@@ -1,0 +1,167 @@
+# DocuGuard - Comprehensive Project Report
+
+## 1. Project Overview
+DocuGuard is a state-of-the-art document analysis and fraud detection platform. It leverages advanced AI (Google Gemini) to provide users with deep insights into document authenticity, health, and classification.
+
+### Core Value Propositions:
+- **Fraud Detection**: Identifying potential forgeries, inconsistencies, and tampering in documents.
+- **Document Health Score**: Evaluating document completeness, legibility, and validity for legitimate files.
+- **Know Your Document (KYD)**: Automatically identifying document types, issuing authorities, and key data points.
+- **Unified History**: Securely tracking and managing all document analyses.
+
+---
+
+## 2. Technology Stack
+
+### Backend (Python / FastAPI)
+- **Framework**: FastAPI (High-performance, asynchronous web framework).
+- **AI Engine**: Google Generative AI (Gemini Pro Vision) via `google-generativeai`.
+- **Rate Limiting**: `SlowAPI` (based on `limits`) for DDoS and brute-force protection.
+- **Database & Auth**: `Supabase-py` (PostgreSQL + Auth + Storage).
+- **Environment Management**: `python-dotenv`.
+- **Image Processing**: `Pillow` (PIL).
+- **Server**: `Uvicorn` (ASGI server).
+
+### Frontend (React / TypeScript)
+- **Runtime/Build Tool**: Vite.
+- **Library**: React 19.
+- **Language**: TypeScript.
+- **Routing**: React Router 7 (Unified SPA routing).
+- **Icons**: Lucide-React.
+- **Client SDK**: `@supabase/supabase-js`.
+- **Styling**: Vanilla CSS (Tailored design system).
+
+---
+
+## 3. Backend Architecture & Endpoints
+
+The backend is unified under a single entry point (`api/index.py`) for local development and Vercel compatibility.
+
+### Endpoints Overview:
+
+| Endpoint | Method | Description | Rate Limit | Auth Required |
+| :--- | :--- | :--- | :--- | :--- |
+| `/api/health` | GET | Liveness probe/system health check. | 60/min | No |
+| `/api/stats` | GET | Public aggregated scan statistics. | 20/min | No |
+| `/api/analyze` | POST | Authenticated document fraud analysis. | 5/min | Yes (JWT) |
+| `/api/analyze-public` | POST | Public (unauthenticated) demo analysis. | 5/min | No |
+| `/api/kyd` | POST | Know Your Document analysis/classification. | 5/min | Yes (JWT) |
+| `/api/scans` | GET | List all fraud scans for the user. | 30/min | Yes (JWT) |
+| `/api/scans` | DELETE | Delete a specific scan record. | 10/min | Yes (JWT) |
+| `/api/history` | GET | Unified history (Fraud + KYD). | 30/min | Yes (JWT) |
+| `/api/history` | DELETE | Delete a history item (Fraud or KYD). | 10/min | Yes (JWT) |
+| `/api/history` | PATCH | Rename a history item. | 10/min | Yes (JWT) |
+| `/api/signed-url` | GET | Generate short-lived URL for private files. | 30/min | Yes (JWT) |
+
+---
+
+## 4. Frontend Architecture
+
+The frontend is structured into modular pages and components with a focus on premium UX and responsive design.
+
+### Key Pages:
+- **Landing**: Public-facing marketing and entry point.
+- **Dashboard**: Central hub for user metrics and recent activity.
+- **Scanner**: The primary interface for uploading and analyzing documents.
+- **KYD Page**: Dedicated interface for "Know Your Document" features.
+- **Health Score**: Specialized results page for legitimate document analysis.
+- **History**: Unified timeline of all past analyses with filtering and renaming capabilities.
+- **Analytics**: Data-driven insights into the user's document ecosystem.
+- **Auth**: Secure Login/Signup powered by Supabase Auth.
+
+### Core Components:
+- **ProtectedRoute**: Ensures sensitive routes are only accessible to authenticated users.
+- **AuthContext**: Manages user session state across the application.
+- **Layout Elements**: Custom-designed cards, progress bars, and gauges for data visualization.
+
+---
+
+## 5. Cybersecurity Optimizations & Best Practices
+
+DocuGuard implements multiple layers of security to protect user data and ensure system stability:
+
+### 1. Authentication & Authorization
+- **Supabase JWT**: All sensitive endpoints require a valid Bearer token.
+- **User Isolation**: Backend logic strictly verifies that a user can only access/modify their own records using the `user_id` extracted from the JWT.
+- **Supabase RLS**: Row-Level Security is enabled on all database tables to prevent unauthorized data access at the database level.
+
+### 2. Request Protection
+- **Rate Limiting**: Implemented via `SlowAPI` on every functional endpoint to prevent automated abuse and DoS attacks.
+- **CORS Protection**: Strict `CORSMiddleware` configuration restricted to specific authorized frontend domains.
+- **Input Validation**: Pydantic models used for strict request body validation.
+
+### 3. File & Path Security
+- **Signed URLs**: Private files in Supabase Storage are NEVER exposed via public URLs. Temporary signed URLs are generated on-the-fly after backend validation.
+- **Path Traversal Protection**: Explicit checks in the `/api/signed-url` endpoint to block `..` or `\` characters and ensure the path starts with the user's own `user_id`.
+- **Public/Private Separation**: Clear separation between public demo assets and sensitive user documents.
+
+### 4. Infrastructure Security
+- **Serverless Architecture**: Leveraging Vercel's serverless functions reduces the attack surface compared to long-running traditional servers.
+- **Environment Variables**: Sensitive keys (Supabase, Gemini) are managed through secure environment variables, never committed to source control.
+
+---
+
+## 6. AI Logic & Integration
+
+### Gemini AI Prompts
+The project uses specialized prompts for different tasks:
+- **Fraud Analysis**: Analyzes for digital tampering, layout inconsistencies, and metadata red flags.
+- **Health Score**: A multi-axis evaluation (Completeness, Validity, Consistency, Legibility, Scan Quality) integrated into the fraud analysis flow.
+- **KYD**: Identifies document type, purpose, and extracts categorical information.
+
+### Robust Error Handling
+- The backend includes fallback logic to handle Gemini parsing failures gracefully, ensuring a single failed AI calculation doesn't crash the entire user request.
+
+---
+
+## 7. Future Synopsis Development
+This project is built with scalability in mind. Future development tracks include:
+- **Advanced OCR Integration**: For even deeper data extraction.
+- **Enterprise Team Accounts**: Multi-user workspaces with shared history.
+- **API for External Integrations**: Allowing 3rd parties to plug into DocuGuard's analysis engine.
+- **Real-time Collaboration**: Shared document reviews.
+
+---
+
+## 8. Database & Storage Schema
+
+The system uses Supabase (PostgreSQL) for structured data and Supabase Storage for binary files.
+
+### Database Tables:
+- **`scans`**:
+    - `id`: UUID (Primary Key)
+    - `user_id`: UUID (Foreign Key to Auth.Users)
+    - `fraud_likelihood`: Text (low, medium, high)
+    - `confidence_score`: Integer (0–100)
+    - `red_flags`: JSONB (Array of detected issues)
+    - `explanation`: Text (AI-generated reasoning)
+    - `document_label`: Text (User-defined or AI-suggested name)
+    - `health_score_overall`: Integer (0–100)
+    - `health_score_grade`: Text (A, B, C, D, F)
+    - `health_score_axes`: JSONB (Detailed metrics)
+    - `health_score_flags`: JSONB (Health-specific issues)
+    - `storage_path`: Text (Path in Supabase Storage)
+    - `is_public_demo`: Boolean
+    - `created_at`: Timestamp
+
+- **`kyd_analyses`**:
+    - `id`: UUID (Primary Key)
+    - `user_id`: UUID (Foreign Key)
+    - `document_type`: Text
+    - `common_name`: Text
+    - `issuing_authority`: Text
+    - `purpose`: Text
+    - `typical_use_cases`: JSONB
+    - `key_fields_present`: JSONB
+    - `data_categories`: JSONB
+    - `notes`: Text
+    - `file_name`: Text (Storage path)
+    - `created_at`: Timestamp
+
+### Storage:
+- **Bucket**: `documents`
+- **Structure**: `uploads/` (User uploads) and specific user folders for isolation.
+
+---
+*Report Generated: 2026-04-27*
+*Project Status: Active Development*
