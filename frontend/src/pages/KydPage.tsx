@@ -45,6 +45,10 @@ const KydPage: React.FC = () => {
             }, token);
             
             setResult(data);
+
+            // Invalidate caches so dashboard and analytics refresh
+            apiClient.invalidateCache('/history');
+            apiClient.invalidateCache('/stats');
         } catch (err) {
             console.error(err);
         } finally {

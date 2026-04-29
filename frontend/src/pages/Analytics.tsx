@@ -11,7 +11,7 @@ const Analytics: React.FC = () => {
 
     useEffect(() => {
         setLoading(true);
-        apiClient.fetch('/stats')
+        apiClient.fetch('/stats', {}, undefined, true)
             .then(data => {
                 setStats(data);
                 setError(null);

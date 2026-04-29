@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
 
     useEffect(() => {
         if (!session) { setLoading(false); return; }
-        apiClient.fetch('/history', {}, session.access_token)
+        apiClient.fetch('/history', {}, session.access_token, true)
             .then(data => setHistory(data.history ?? []))
             .catch(err => console.error("Error fetching history:", err))
             .finally(() => setLoading(false));

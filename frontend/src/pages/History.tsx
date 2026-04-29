@@ -19,7 +19,7 @@ const History: React.FC = () => {
         if (!session) return;
         setLoading(true);
         try {
-            const data = await apiClient.fetch('/history', {}, session.access_token);
+            const data = await apiClient.fetch('/history', {}, session.access_token, true);
             setHistory(data.history);
         } catch (error) {
             console.error(error);
@@ -37,6 +37,10 @@ const History: React.FC = () => {
         try {
             await apiClient.fetch(`/history?id=${id}&type=${type}`, { method: 'DELETE' }, session?.access_token);
             setHistory(prev => prev.filter(item => item.id !== id));
+            
+            // Invalidate caches
+            apiClient.invalidateCache('/history');
+            apiClient.invalidateCache('/stats');
         } catch (error) {
             console.error('Failed to delete', error);
             alert('Failed to delete scan. Please try again.');
@@ -76,6 +80,9 @@ const History: React.FC = () => {
                 item.id === id ? { ...item, document_name: editName.trim() } : item
             ));
             setEditingId(null);
+
+            // Invalidate caches
+            apiClient.invalidateCache('/history');
         } catch (error) {
             console.error('Failed to rename', error);
             alert('Failed to rename document.');
