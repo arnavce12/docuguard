@@ -12,7 +12,7 @@
   [![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)](#)
   [![Gemini API](https://img.shields.io/badge/AI-Google_Gemini-4285F4?logo=google)](#)
 
-  [Live Demo]([INSERT_DEPLOYED_WEBPAGE_LINK]) | [GitHub Repository]([INSERT_GIT_REPO_LINK])
+  [Live Demo](https://docuguard-five.vercel.app/) | [GitHub Repository](https://github.com/arnavce12/docuguard.git)
 </div>
 
 <br />
@@ -36,7 +36,7 @@ Designed with a modern, high-performance architecture, DocuGuard features a prem
 
 DocuGuard is fully optimized for production environments and serverless architectures. 
 
-- 🌍 **Live Platform:** [DocuGuard Web App]([INSERT_DEPLOYED_WEBPAGE_LINK])
+- 🌍 **Live Platform:** [DocuGuard Web App](https://docuguard-five.vercel.app/)
 - ⚡ **Hosting:** Deployed seamlessly on **Vercel**.
 - 🛠 **Backend:** FastAPI routes deployed as **Vercel Serverless Functions** (`/api/*`).
 - 🗄 **Storage/Auth:** Powered by live **Supabase** instances for secure document storage and user authentication.
@@ -92,7 +92,7 @@ Want to run DocuGuard locally? Follow these steps:
 
 ### 2. Clone the Repository
 ```bash
-git clone [INSERT_GIT_REPO_LINK]
+git clone https://github.com/arnavce12/docuguard.git
 cd docuguard
 ```
 
@@ -145,7 +145,7 @@ vercel dev
 ---
 
 ## 🤝 Contributing
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page]([INSERT_GIT_REPO_LINK]/issues).
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/arnavce12/docuguard/issues).
 
 ## 📄 License
 This project is licensed under the **MIT License**.
