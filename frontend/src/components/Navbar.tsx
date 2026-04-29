@@ -65,8 +65,20 @@ export const Navbar = () => {
                         </button>
                         {!user ? (
                             <>
-                                <NavLink to="/auth" className="px-5 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">Login</NavLink>
-                                <NavLink to="/auth" className="px-6 py-2.5 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95">Sign Up</NavLink>
+                                <NavLink 
+                                    to="/auth" 
+                                    state={{ mode: 'login' }}
+                                    className="px-5 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white transition-colors"
+                                >
+                                    Login
+                                </NavLink>
+                                <NavLink 
+                                    to="/auth" 
+                                    state={{ mode: 'signup' }}
+                                    className="px-6 py-2.5 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-95"
+                                >
+                                    Sign Up
+                                </NavLink>
                             </>
                         ) : (
                             <button
@@ -126,6 +138,7 @@ export const Navbar = () => {
                             <>
                                 <NavLink
                                     to="/auth"
+                                    state={{ mode: 'login' }}
                                     onClick={close}
                                     className="mob-auth-btn mob-auth-btn-secondary"
                                 >
@@ -133,6 +146,7 @@ export const Navbar = () => {
                                 </NavLink>
                                 <NavLink
                                     to="/auth"
+                                    state={{ mode: 'signup' }}
                                     onClick={close}
                                     className="mob-auth-btn mob-auth-btn-primary"
                                 >

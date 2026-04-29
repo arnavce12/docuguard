@@ -22,6 +22,7 @@ const Landing: React.FC = () => {
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <Link
                         to={user ? "/dashboard" : "/auth"}
+                        state={!user ? { mode: 'signup' } : undefined}
                         className="px-10 py-5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-lg transition-all shadow-2xl shadow-blue-600/30"
                     >
                         {user ? "Go to Dashboard" : "Start Free Scan"}

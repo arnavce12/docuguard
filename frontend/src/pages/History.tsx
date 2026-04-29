@@ -118,7 +118,8 @@ const History: React.FC = () => {
                         placeholder="Search document name..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 pr-4 py-3 bg-zinc-900/80 border border-zinc-800 rounded-xl focus:outline-none focus:border-zinc-600 transition-colors w-full text-white caret-white shadow-inner"
+                        className="pl-10 pr-4 py-3 bg-zinc-900/80 border border-zinc-800 rounded-xl focus:outline-none focus:border-zinc-600 transition-colors w-full text-primary shadow-inner"
+                        style={{ caretColor: 'var(--text-primary)' }}
                     />
                 </div>
             </div>

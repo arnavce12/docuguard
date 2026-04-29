@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext.tsx';
 
 const Auth: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isLogin, setIsLogin] = useState(true);
-    const [loading, setLoading] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
-    const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        if (location.state?.mode) {
+            setIsLogin(location.state.mode === 'login');
+        }
+    }, [location.state]);
 
     useEffect(() => {
         if (user) {
             navigate('/dashboard');
         }
     }, [user, navigate]);
+
+    const [loading, setLoading] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -61,8 +69,8 @@ const Auth: React.FC = () => {
                                 <input
                                     type="text"
                                     placeholder="John Doe"
-                                    className="w-full pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
-                                    style={{ paddingLeft: '3.25rem' }}
+                                    className="w-full pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-primary"
+                                    style={{ paddingLeft: '3.25rem', caretColor: 'var(--text-primary)' }}
                                 />
                             </div>
                         </div>
@@ -78,8 +86,8 @@ const Auth: React.FC = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="name@company.com"
                                 required
-                                className="w-full pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
-                                style={{ paddingLeft: '3.25rem' }}
+                                className="w-full pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-primary"
+                                style={{ paddingLeft: '3.25rem', caretColor: 'var(--text-primary)' }}
                             />
                         </div>
                     </div>
@@ -94,8 +102,8 @@ const Auth: React.FC = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
                                 required
-                                className="w-full pr-12 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-white caret-white"
-                                style={{ paddingLeft: '3.25rem' }}
+                                className="w-full pr-12 py-3 bg-zinc-900 border border-zinc-800 rounded-xl focus:outline-none focus:border-blue-500 transition-colors text-primary"
+                                style={{ paddingLeft: '3.25rem', caretColor: 'var(--text-primary)' }}
                             />
                             <button
                                 type="button"
