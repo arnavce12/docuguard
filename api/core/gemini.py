@@ -1,6 +1,7 @@
 import os
 import json
 import re
+from datetime import datetime
 import google.generativeai as genai
 from google.api_core import exceptions
 from PIL import Image
@@ -124,7 +125,9 @@ def analyze_document(image_bytes: bytes) -> dict:
             }
             
             model = get_model()
-            response = model.generate_content([PROMPT, input_data], generation_config=generation_config)
+            current_date = datetime.now().strftime("%B %d, %Y")
+            full_prompt = f"IMPORTANT: Today's reference date is {current_date}. Use this to accurately determine if dates in the document are in the future.\n\n{PROMPT}"
+            response = model.generate_content([full_prompt, input_data], generation_config=generation_config)
             print(f"[DEBUG] Gemini responded successfully (Key index: {_current_key_index})")
             
             raw = response.text.strip()
@@ -183,7 +186,9 @@ def analyze_document_kyd(image_bytes: bytes) -> dict:
             }
             
             model = get_model()
-            response = model.generate_content([KYD_PROMPT, input_data], generation_config=generation_config)
+            current_date = datetime.now().strftime("%B %d, %Y")
+            full_prompt = f"IMPORTANT: Today's reference date is {current_date}. Use this to accurately determine if dates in the document are in the future.\n\n{KYD_PROMPT}"
+            response = model.generate_content([full_prompt, input_data], generation_config=generation_config)
             print(f"[DEBUG] Gemini KYD responded successfully (Key index: {_current_key_index})")
             
             raw = response.text.strip()
