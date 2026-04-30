@@ -3,6 +3,7 @@ import { Upload, FileText, CheckCircle2, Loader2, Info, Search, Activity, Camera
 import { apiClient } from '../lib/api';
 import { useAuth } from '../lib/AuthContext';
 import { supabase } from '../lib/supabase';
+import { compressImage } from '../lib/image';
 import { useNavigate } from 'react-router-dom';
 
 const KydPage: React.FC = () => {
@@ -13,6 +14,8 @@ const KydPage: React.FC = () => {
     const [result, setResult] = useState<any>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [storagePath, setStoragePath] = useState<string | null>(null);
+    const [loadingStage, setLoadingStage] = useState<'idle' | 'compressing' | 'uploading' | 'analyzing'>('idle');
+    const [isTakingLong, setIsTakingLong] = useState(false);
 
     useEffect(() => {
         setIsMobile(/Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -21,18 +24,35 @@ const KydPage: React.FC = () => {
     const handleUpload = async () => {
         if (!file) return;
         setLoading(true);
+        setIsTakingLong(false);
+        setLoadingStage('compressing');
+
+        const longTimer = setTimeout(() => setIsTakingLong(true), 25000);
 
         try {
+            // Compress image for mobile speed
+            let fileToUpload: File | Blob = file;
+            if (file.type !== 'application/pdf') {
+                try {
+                    fileToUpload = await compressImage(file);
+                    console.log(`[DEBUG] Compressed image from ${file.size} to ${fileToUpload.size} bytes`);
+                } catch (e) {
+                    console.warn("Compression failed, uploading original", e);
+                }
+            }
+
+            setLoadingStage('uploading');
             const ext = file.name.split('.').pop() || 'jpg';
             const uuid = crypto.randomUUID();
             const path = session ? `${session.user.id}/kyd_${uuid}.${ext}` : `public/kyd_${uuid}.${ext}`;
 
             const { data: uploadData, error: uploadError } = await supabase.storage
                 .from('documents')
-                .upload(path, file);
+                .upload(path, fileToUpload);
 
             if (uploadError) throw uploadError;
 
+            setLoadingStage('analyzing');
             const current_storage_path = uploadData.path;
             setStoragePath(current_storage_path);
             
@@ -51,8 +71,12 @@ const KydPage: React.FC = () => {
             apiClient.invalidateCache('/stats');
         } catch (err) {
             console.error(err);
+            alert("Analysis failed. This might be due to a network timeout on mobile. Please try a smaller file or a stronger connection.");
         } finally {
+            clearTimeout(longTimer);
             setLoading(false);
+            setLoadingStage('idle');
+            setIsTakingLong(false);
         }
     };
 
@@ -122,13 +146,36 @@ const KydPage: React.FC = () => {
                     )}
 
                     {file && (
-                        <button
-                            onClick={handleUpload}
-                            disabled={loading}
-                            className="px-12 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-2xl flex items-center gap-3 transition-all shadow-xl shadow-purple-600/30 active:scale-95 text-lg disabled:opacity-50"
-                        >
-                            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Analyze Document'}
-                        </button>
+                        <div className="w-full max-w-md flex flex-col items-center gap-4">
+                            <button
+                                onClick={handleUpload}
+                                disabled={loading}
+                                className="w-full px-12 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-2xl flex flex-col items-center justify-center gap-1 transition-all shadow-xl shadow-purple-600/30 active:scale-95 text-lg disabled:opacity-50 relative overflow-hidden"
+                            >
+                                {loading ? (
+                                    <>
+                                        <div className="flex items-center gap-3">
+                                            <Loader2 className="w-6 h-6 animate-spin" />
+                                            <span>
+                                                {loadingStage === 'compressing' && 'Optimizing Image...'}
+                                                {loadingStage === 'uploading' && 'Uploading...'}
+                                                {loadingStage === 'analyzing' && 'Analyzing Document...'}
+                                            </span>
+                                        </div>
+                                        {isTakingLong && (
+                                            <span className="text-[10px] text-purple-200 animate-pulse font-medium">Still working, please don't close...</span>
+                                        )}
+                                    </>
+                                ) : 'Analyze Document'}
+                            </button>
+                            
+                            {isTakingLong && (
+                                <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-500 text-xs text-center animate-in fade-in slide-in-from-top-2">
+                                    <p className="font-bold mb-1">Deep analysis in progress</p>
+                                    <p>High-resolution documents require extra forensic layers. This process may take up to 60 seconds on mobile networks.</p>
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
             ) : (

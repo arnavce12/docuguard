@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronLeft, AlertTriangle, Activity, FileText, CheckCircle } from 'lucide-react';
+import { ChevronLeft, AlertTriangle, Activity, FileText, CheckCircle, Shield, Download, Share2 } from 'lucide-react';
 
 interface HealthScoreState {
     health_score: {
@@ -16,11 +16,18 @@ interface HealthScoreState {
         grade: "A" | "B" | "C" | "D" | "F";
     };
     fileName: string;
+    scanResult: any;
+    preloadedFile: File | null;
 }
 
 const HealthScore: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const [animate, setAnimate] = useState(false);
+    
+    useEffect(() => {
+        setAnimate(true);
+    }, []);
     
     // Check if state exists
     if (!location.state || !location.state.health_score) {
@@ -36,22 +43,21 @@ const HealthScore: React.FC = () => {
         );
     }
 
-    const { health_score, fileName } = location.state as HealthScoreState;
+    const { health_score, fileName, scanResult, preloadedFile } = location.state as HealthScoreState;
 
-    // Use thresholds as fallback, though trusting API string as primary
-    const getGradeColor = (grade: string, score: number) => {
-        const _grade = grade ? grade.toUpperCase() : score >= 90 ? 'A' : score >= 75 ? 'B' : score >= 60 ? 'C' : score >= 45 ? 'D' : 'F';
-        if (_grade === 'A') return 'text-green-500 bg-green-500/10 border-green-500/20 ring-green-500';
-        if (_grade === 'B') return 'text-blue-500 bg-blue-500/10 border-blue-500/20 ring-blue-500';
-        if (_grade === 'C') return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20 ring-yellow-500';
-        if (_grade === 'D') return 'text-orange-500 bg-orange-500/10 border-orange-500/20 ring-orange-500';
-        return 'text-red-500 bg-red-500/10 border-red-500/20 ring-red-500';
+    const getGradeStyles = (grade: string) => {
+        const _grade = grade?.toUpperCase() || 'F';
+        if (_grade === 'A') return { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', glow: 'shadow-emerald-500/20' };
+        if (_grade === 'B') return { color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', glow: 'shadow-blue-500/20' };
+        if (_grade === 'C') return { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', glow: 'shadow-amber-500/20' };
+        if (_grade === 'D') return { color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', glow: 'shadow-orange-500/20' };
+        return { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', glow: 'shadow-red-500/20' };
     };
 
     const getAxisColor = (score: number) => {
-        if (score >= 90) return 'bg-green-500';
+        if (score >= 90) return 'bg-emerald-500';
         if (score >= 75) return 'bg-blue-500';
-        if (score >= 60) return 'bg-yellow-500';
+        if (score >= 60) return 'bg-amber-500';
         if (score >= 45) return 'bg-orange-500';
         return 'bg-red-500';
     };
@@ -64,128 +70,199 @@ const HealthScore: React.FC = () => {
         { key: 'scan_quality', label: 'Scan Quality', weight: 10 },
     ];
 
-    const radius = 60;
+    const styles = getGradeStyles(health_score.grade);
+    const radius = 70;
     const circumference = 2 * Math.PI * radius;
-    const strokeDashoffset = Math.max(0, circumference - (health_score.overall / 100) * circumference);
-    const strokeColorClass = getGradeColor(health_score.grade, health_score.overall).split(' ').find(c => c.startsWith('text-'))?.replace('text-', '') || 'blue-500';
+    const strokeDashoffset = animate ? circumference - (health_score.overall / 100) * circumference : circumference;
+
+    const handleBack = () => {
+        // Fix: Explicitly pass back the scanResult and file state to keep Scanner page populated
+        navigate('/scanner', { 
+            state: { 
+                scanResult, 
+                preloadedFile 
+            } 
+        });
+    };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-20 animate-in fade-in duration-500">
-            {/* Header */}
-            <div className="space-y-4">
-                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors w-fit px-2 py-1 -ml-2 rounded-lg hover:bg-zinc-800">
-                    <ChevronLeft className="w-5 h-5" /> Back to Results
-                </button>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto space-y-8 pb-24 animate-in fade-in duration-700">
+            {/* Nav & Meta Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-zinc-800 pb-8">
+                <div className="space-y-4">
+                    <button 
+                        onClick={handleBack} 
+                        className="group flex items-center gap-2 text-zinc-500 hover:text-white transition-all w-fit px-3 py-1.5 -ml-3 rounded-xl hover:bg-zinc-800/50"
+                    >
+                        <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> 
+                        <span className="font-medium">Back to Forensic Verdict</span>
+                    </button>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Document Health Score</h1>
-                        <p className="text-zinc-400 mt-1 flex items-center gap-2">
-                            <FileText className="w-4 h-4" /> {fileName}
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-blue-500/10 rounded-lg">
+                                <Shield className="w-5 h-5 text-blue-500" />
+                            </div>
+                            <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">Health Certificate</h1>
+                        </div>
+                        <p className="text-zinc-500 flex items-center gap-2 text-sm font-medium">
+                            <FileText className="w-4 h-4 text-zinc-600" /> {fileName} 
+                            <span className="w-1 h-1 bg-zinc-700 rounded-full mx-1"></span>
+                            <span className="text-zinc-600">ID: {Math.random().toString(36).substring(2, 10).toUpperCase()}</span>
                         </p>
                     </div>
                 </div>
+                
+                <div className="flex items-center gap-3">
+                    <button className="p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all shadow-xl">
+                        <Share2 className="w-5 h-5" />
+                    </button>
+                    <button className="flex items-center gap-2 px-6 py-3 bg-zinc-100 hover:bg-white text-black font-bold rounded-2xl transition-all shadow-xl active:scale-95">
+                        <Download className="w-5 h-5" /> Export Report
+                    </button>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Score Hero */}
-                <div className="glass p-8 rounded-3xl flex flex-col items-center justify-center text-center space-y-6">
-                    <div className="relative w-40 h-40 flex items-center justify-center">
-                        <svg className="w-full h-full -rotate-90" viewBox="0 0 140 140">
-                            {/* Background track */}
-                            <circle cx="70" cy="70" r={radius} className="stroke-zinc-800" strokeWidth="12" fill="none" />
-                            {/* Value track */}
-                            <circle 
-                                cx="70" cy="70" r={radius} 
-                                className="transition-all duration-1000 ease-out fill-none stroke-current" 
-                                style={{ stroke: `var(--tw-colors-${strokeColorClass.split('-')[0]}-${strokeColorClass.split('-')[1]})`, strokeDasharray: circumference, strokeDashoffset }}
-                                strokeWidth="12" strokeLinecap="round"
-                            />
-                        </svg>
-                        <div className="absolute flex flex-col items-center justify-center">
-                            <span className="text-4xl font-bold font-mono text-white tracking-tighter">{health_score.overall}</span>
-                            <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mt-0.5">SCORE</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Score Hero Section */}
+                <div className="lg:col-span-4 flex flex-col gap-6">
+                    <div className="glass rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center relative overflow-hidden group border-zinc-800/50 shadow-2xl">
+                        <div className={`absolute inset-0 bg-gradient-to-b ${styles.bg} to-transparent opacity-30`} />
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-1000" />
+                        
+                        <div className="relative w-48 h-48 flex items-center justify-center mb-8">
+                            {/* Animated Background Rings */}
+                            <div className="absolute inset-0 rounded-full border border-white/5 animate-pulse" />
+                            <div className="absolute inset-4 rounded-full border border-white/5 animate-reverse-spin duration-[10s]" />
+                            
+                            <svg className="w-full h-full -rotate-90 filter drop-shadow-2xl" viewBox="0 0 180 180">
+                                <circle cx="90" cy="90" r={radius} className="stroke-zinc-800/50" strokeWidth="10" fill="none" />
+                                <circle 
+                                    cx="90" cy="90" r={radius} 
+                                    className={`transition-all duration-1500 ease-out fill-none stroke-current ${styles.color}`} 
+                                    style={{ strokeDasharray: circumference, strokeDashoffset }}
+                                    strokeWidth="10" strokeLinecap="round"
+                                />
+                            </svg>
+                            <div className="absolute flex flex-col items-center justify-center">
+                                <span className="text-6xl font-black font-mono text-white tracking-tighter drop-shadow-lg">{health_score.overall}</span>
+                                <span className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.3em] mt-1">PERCENTILE</span>
+                            </div>
+                        </div>
+                        
+                        <div className={`relative z-10 px-8 py-4 rounded-2xl border ${styles.border} ${styles.bg} ${styles.glow} backdrop-blur-md shadow-2xl ring-1 ring-inset ring-white/10 group-hover:-translate-y-1 transition-all duration-300`}>
+                            <div className="text-[10px] uppercase font-black tracking-[0.2em] opacity-60 mb-1">Global Verdict</div>
+                            <div className={`text-4xl font-black ${styles.color}`}>Grade {health_score.grade}</div>
                         </div>
                     </div>
-                    
-                    <div className={`px-6 py-2.5 rounded-xl border ${getGradeColor(health_score.grade, health_score.overall)} ring-1 ring-inset shadow-inner`}>
-                        <span className="text-2xl font-black whitespace-nowrap">Grade {health_score.grade}</span>
+
+                    <div className="glass p-8 rounded-[2rem] bg-zinc-900/40 border-zinc-800/50">
+                        <h4 className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-4">Security Insights</h4>
+                        <p className="text-sm text-zinc-400 leading-relaxed">
+                            This score reflects the technical integrity of the document assets. A higher score indicates lower digital noise and higher structural consistency.
+                        </p>
                     </div>
                 </div>
 
-                {/* Axes Breakdown */}
-                <div className="md:col-span-2 glass p-8 rounded-3xl space-y-6">
-                    <h3 className="font-bold text-lg flex items-center gap-2 text-zinc-100 border-b border-zinc-800 pb-4">
-                        <Activity className="w-5 h-5 text-blue-500" /> Axis Breakdown
-                    </h3>
-                    <div className="space-y-6">
-                        {axesConfig.map((axis) => {
-                            const data = health_score.axes[axis.key as keyof typeof health_score.axes];
-                            if (!data) return null;
-                            return (
-                                <div key={axis.key} className="space-y-2.5">
-                                    <div className="flex justify-between items-end gap-4">
-                                        <div className="flex-1">
-                                            <div className="font-bold flex items-center gap-2 text-zinc-200">
-                                                {axis.label}
-                                                <span className="text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700 text-zinc-400 font-medium whitespace-nowrap">Weight: {axis.weight}%</span>
+                {/* Axes Breakdown Section */}
+                <div className="lg:col-span-8 space-y-6">
+                    <div className="glass p-8 md:p-10 rounded-[2.5rem] border-zinc-800/50">
+                        <div className="flex items-center justify-between mb-10">
+                            <div className="flex items-center gap-3">
+                                <Activity className="w-6 h-6 text-blue-500" />
+                                <h3 className="text-2xl font-bold">Structural Analysis</h3>
+                            </div>
+                            <div className="text-xs text-zinc-500 font-mono">WEIGHTED AGGREGATE</div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                            {axesConfig.map((axis) => {
+                                const data = health_score.axes[axis.key as keyof typeof health_score.axes];
+                                if (!data) return null;
+                                return (
+                                    <div key={axis.key} className="space-y-4 group">
+                                        <div className="flex justify-between items-start">
+                                            <div className="space-y-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-zinc-100 group-hover:text-white transition-colors">{axis.label}</span>
+                                                    <span className="text-[9px] bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700/50 text-zinc-500 font-bold">{axis.weight}%</span>
+                                                </div>
+                                                <p className="text-xs text-zinc-500 leading-snug max-w-[200px] group-hover:text-zinc-400 transition-colors">{data.note}</p>
                                             </div>
-                                            <p className="text-xs text-zinc-400 mt-1 leading-relaxed truncate  md:whitespace-normal md:overflow-visible">{data.note}</p>
+                                            <span className="text-xl font-mono font-black text-zinc-300 drop-shadow-sm">{data.score}</span>
                                         </div>
-                                        <span className="font-mono font-bold text-sm text-zinc-300 w-12 text-right">{data.score}/100</span>
+                                        <div className="h-2 w-full bg-zinc-800/50 rounded-full overflow-hidden p-[2px] border border-white/5">
+                                            <div 
+                                                className={`h-full rounded-full ${getAxisColor(data.score)} transition-all duration-1500 ease-out shadow-[0_0_10px_rgba(0,0,0,0.5)]`} 
+                                                style={{ width: animate ? `${data.score}%` : '0%' }} 
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden shadow-inner">
-                                        <div 
-                                            className={`h-full rounded-full ${getAxisColor(data.score)} transition-all duration-1000`} 
-                                            style={{ width: `${Math.max(0, Math.min(100, data.score))}%` }} 
-                                        />
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
+
+                    {/* Flags / Clean Section */}
+                    {health_score.flags && health_score.flags.length > 0 ? (
+                        <div className="glass p-8 md:p-10 rounded-[2.5rem] border-orange-500/20 bg-orange-500/5 shadow-2xl shadow-orange-500/5 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <AlertTriangle className="w-24 h-24 text-orange-500" />
+                            </div>
+                            <div className="flex items-center gap-3 mb-8 relative z-10">
+                                <div className="p-2 bg-orange-500/20 rounded-xl">
+                                    <AlertTriangle className="w-5 h-5 text-orange-500" />
+                                </div>
+                                <h3 className="text-xl font-bold text-orange-400">Anomalies Detected</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+                                {health_score.flags.map((flag, i) => (
+                                    <div key={i} className="flex gap-4 items-center bg-zinc-950/40 p-5 rounded-2xl border border-orange-500/10 hover:border-orange-500/30 transition-all hover:bg-zinc-950/60 group">
+                                        <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)] group-hover:scale-125 transition-transform" />
+                                        <span className="text-zinc-300 text-sm font-medium leading-relaxed">{flag}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="glass p-10 rounded-[2.5rem] border-emerald-500/20 bg-emerald-500/5 shadow-2xl shadow-emerald-500/5 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="p-6 bg-emerald-500/10 rounded-[2rem] relative z-10">
+                                <CheckCircle className="w-12 h-12 text-emerald-500 animate-pulse" />
+                            </div>
+                            <div className="relative z-10 text-center md:text-left space-y-2">
+                                <h3 className="text-2xl font-bold text-emerald-400 tracking-tight">Optimal Integrity Verified</h3>
+                                <p className="text-emerald-500/60 font-medium leading-relaxed max-w-md">
+                                    This document exhibits perfect structural alignment and zero digital tampering artifacts across all measured dimensions.
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Flags Section */}
-            {health_score.flags && health_score.flags.length > 0 ? (
-                <div className="glass p-8 rounded-3xl space-y-6 border border-orange-500/20 bg-orange-500/5 shadow-xl shadow-orange-500/5">
-                    <h3 className="font-bold text-lg flex items-center gap-2 text-orange-400">
-                        <AlertTriangle className="w-5 h-5" /> Issues Found
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {health_score.flags.map((flag, i) => (
-                            <div key={i} className="flex gap-3 text-zinc-300 text-sm bg-zinc-950/50 p-4 rounded-xl border border-orange-500/20 shadow-inner">
-                                <AlertTriangle className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                                <span className="leading-relaxed">{flag}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ) : (
-                <div className="glass p-8 rounded-3xl flex items-center gap-4 border border-green-500/20 bg-green-500/5 shadow-xl shadow-green-500/5">
-                    <div className="p-3 bg-green-500/10 rounded-2xl">
-                        <CheckCircle className="w-8 h-8 text-green-500" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-lg text-green-400">No issues detected</h3>
-                        <p className="text-sm text-green-500/70 mt-1">The document looks perfectly clean across all measured axes.</p>
-                    </div>
-                </div>
-            )}
-
-            {/* Footer Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+            {/* Premium CTA Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-10">
                 <button 
                     onClick={() => navigate('/scanner')}
-                    className="flex-1 py-4 bg-zinc-800 hover:bg-zinc-700 active:scale-[0.98] focus:ring-2 focus:ring-zinc-600 focus:outline-none text-white font-bold rounded-2xl transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-2 shadow-lg hover:shadow-black/40"
+                    className="group relative px-8 py-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-white font-bold rounded-[2rem] transition-all overflow-hidden shadow-2xl active:scale-[0.98]"
                 >
-                    Run Fraud Detection Again
+                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="flex flex-col items-center gap-1">
+                        <Activity className="w-6 h-6 text-blue-500 mb-1" />
+                        <span className="text-lg">Scan New Document</span>
+                        <span className="text-[10px] text-zinc-500 font-black tracking-widest uppercase">RETURN TO LABORATORY</span>
+                    </div>
                 </button>
                 <button 
                     onClick={() => navigate('/kyd')}
-                    className="flex-1 py-4 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 text-purple-400 active:scale-[0.98] focus:ring-2 focus:ring-purple-500/50 focus:outline-none font-bold rounded-2xl transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-2 shadow-lg hover:shadow-purple-500/10"
+                    className="group relative px-8 py-6 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-[2rem] transition-all overflow-hidden shadow-2xl shadow-purple-600/20 active:scale-[0.98]"
                 >
-                    Know Your Document Profile
+                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="flex flex-col items-center gap-1">
+                        <Shield className="w-6 h-6 text-white mb-1" />
+                        <span className="text-lg">Explore Identity Profile</span>
+                        <span className="text-[10px] text-purple-200/50 font-black tracking-widest uppercase">INTEL ANALYTICS</span>
+                    </div>
                 </button>
             </div>
         </div>
