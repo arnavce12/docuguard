@@ -2,14 +2,42 @@ import os
 import json
 import re
 import google.generativeai as genai
+from google.api_core import exceptions
 from PIL import Image
 import io
 from dotenv import load_dotenv
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("models/gemini-2.5-flash")
+# Setup API Key Rotation
+def get_available_keys():
+    keys = [
+        os.getenv("GEMINI_API_KEY"),
+        os.getenv("GEMINI_API_KEY_FALLBACK_1"),
+        os.getenv("GEMINI_API_KEY_FALLBACK_2")
+    ]
+    return [k for k in keys if k]
+
+API_KEYS = get_available_keys()
+_current_key_index = 0
+
+def configure_client():
+    global _current_key_index
+    if not API_KEYS:
+        print("[ERROR] No Gemini API keys found in environment variables.")
+        return False
+    
+    genai.configure(api_key=API_KEYS[_current_key_index])
+    print(f"[DEBUG] Gemini client configured with key index {_current_key_index}")
+    return True
+
+# Initial configuration
+configure_client()
+
+def get_model():
+    # Using gemini-3-flash: the latest model optimized for speed and intelligence
+    # for high-throughput document analysis (as of April 2026).
+    return genai.GenerativeModel("models/gemini-3-flash-preview")
 
 PROMPT = """
 You are an expert document forensics analyst specializing in financial fraud detection.
@@ -61,57 +89,6 @@ If the image is not a document (e.g. a photo, selfie, random image), return:
 }
 """
 
-
-def analyze_document(image_bytes: bytes) -> dict:
-    """Send image to Gemini and return parsed fraud analysis."""
-    print(f"[DEBUG] gemini.analyze_document started (bytes: {len(image_bytes)})")
-    try:
-        if image_bytes.startswith(b'%PDF'):
-            input_data = {'mime_type': 'application/pdf', 'data': image_bytes}
-        else:
-            input_data = Image.open(io.BytesIO(image_bytes))
-
-        # Add generation config for more control
-        generation_config = {
-            "temperature": 0.1,
-            "top_p": 1,
-            "top_k": 32,
-            "max_output_tokens": 4096,
-        }
-        response = model.generate_content([PROMPT, input_data], generation_config=generation_config)
-        print("[DEBUG] Gemini responded successfully")
-        raw = response.text.strip()
-
-        # Strip markdown code fences if Gemini adds them anyway
-        raw = re.sub(r"```json|```", "", raw).strip()
-        print(raw)
-        result = json.loads(raw)
-
-        # Validate and sanitize the response
-        assert result["fraud_likelihood"] in ("high", "medium", "low")
-        assert isinstance(result["confidence_score"], (int, float))
-        assert isinstance(result["red_flags"], list)
-        assert isinstance(result["explanation"], str)
-
-        result["confidence_score"] = int(result["confidence_score"])
-        result["document_label"] = result.get("document_label", "Unnamed Document")
-        return result
-
-    except (json.JSONDecodeError, AssertionError, KeyError) as e:
-        print(f"[DEBUG] Parse/validation error: {type(e).__name__}: {e}")
-        print(f"[DEBUG] Raw length: {len(raw) if 'raw' in dir() else 'N/A'}")
-        print(f"[DEBUG] Raw tail: {raw[-200:] if 'raw' in dir() and raw else 'N/A'}")
-        # Fallback if Gemini returns something unexpected
-        return {
-            "fraud_likelihood": "medium",
-            "confidence_score": 50,
-            "red_flags": ["Analysis inconclusive — please try again"],
-            "explanation": "The AI could not produce a structured analysis for this document. Try uploading a clearer image.",
-            "health_score": null
-        }
-    except Exception as e:
-        raise RuntimeError(f"Gemini API error: {str(e)}")
-
 KYD_PROMPT = """
 You are a document analysis expert. Analyze the uploaded document image and return a JSON object with the following fields:
 
@@ -127,55 +104,124 @@ You are a document analysis expert. Analyze the uploaded document image and retu
 Return ONLY a valid JSON object. No explanation, no markdown, no extra text.
 """
 
-def analyze_document_kyd(image_bytes: bytes) -> dict:
-    """Send image to Gemini for Know Your Document (KYD) analysis."""
-    print(f"[DEBUG] gemini.analyze_document_kyd started (bytes: {len(image_bytes)})")
-    try:
-        if image_bytes.startswith(b'%PDF'):
-            input_data = {'mime_type': 'application/pdf', 'data': image_bytes}
-        else:
-            input_data = Image.open(io.BytesIO(image_bytes))
+def analyze_document(image_bytes: bytes) -> dict:
+    """Send image to Gemini and return parsed fraud analysis with fallback logic."""
+    global _current_key_index
+    print(f"[DEBUG] gemini.analyze_document started (bytes: {len(image_bytes)})")
+    
+    for attempt in range(len(API_KEYS) or 1):
+        try:
+            if image_bytes.startswith(b'%PDF'):
+                input_data = {'mime_type': 'application/pdf', 'data': image_bytes}
+            else:
+                input_data = Image.open(io.BytesIO(image_bytes))
 
-        generation_config = {
-            "temperature": 0.1,
-            "top_p": 1,
-            "top_k": 32,
-            "max_output_tokens": 4096,
-        }
-        response = model.generate_content([KYD_PROMPT, input_data], generation_config=generation_config)
-        print("[DEBUG] Gemini KYD responded successfully")
-        raw = response.text.strip()
-        
-        # Strip markdown code fences if Gemini adds them
-        raw = re.sub(r"```json|```", "", raw).strip()
-        print(raw)
-        result = json.loads(raw)
-        
-        # We assume the schema resembles the requested one
-        # If Gemini misses fields, handle gracefully, but we expect it to try.
-        return {
-            "document_type": result.get("document_type", "Unknown Document type"),
-            "common_name": result.get("common_name", "Unknown Name"),
-            "issuing_authority": result.get("issuing_authority", None),
-            "purpose": result.get("purpose", "Analysis could not precisely determine purpose."),
-            "typical_use_cases": result.get("typical_use_cases", []),
-            "key_fields_present": result.get("key_fields_present", []),
-            "data_categories": result.get("data_categories", []),
-            "notes": result.get("notes", None)
-        }
-        
-    except (json.JSONDecodeError, KeyError) as e:
-        print(f"[DEBUG] KYD Parse error: {type(e).__name__}: {e}")
-        # Partial failure response
-        return {
-            "document_type": "Unknown Document",
-            "common_name": "Unrecognized",
-            "issuing_authority": None,
-            "purpose": "Could not extract details. Image may be unclear.",
-            "typical_use_cases": [],
-            "key_fields_present": [],
-            "data_categories": [],
-            "notes": "Failed to structured data from AI."
-        }
-    except Exception as e:
-        raise RuntimeError(f"Gemini KYD API error: {str(e)}")
+            generation_config = {
+                "temperature": 0.1,
+                "top_p": 1,
+                "top_k": 32,
+                "max_output_tokens": 4096,
+            }
+            
+            model = get_model()
+            response = model.generate_content([PROMPT, input_data], generation_config=generation_config)
+            print(f"[DEBUG] Gemini responded successfully (Key index: {_current_key_index})")
+            
+            raw = response.text.strip()
+            raw = re.sub(r"```json|```", "", raw).strip()
+            result = json.loads(raw)
+
+            # Validate and sanitize
+            assert result["fraud_likelihood"] in ("high", "medium", "low")
+            assert isinstance(result["confidence_score"], (int, float))
+            
+            result["confidence_score"] = int(result["confidence_score"])
+            result["document_label"] = result.get("document_label", "Unnamed Document")
+            return result
+
+        except (exceptions.ResourceExhausted, exceptions.ServiceUnavailable, exceptions.PermissionDenied, exceptions.Unauthenticated) as e:
+            print(f"[WARNING] Gemini API Issue (Attempt {attempt+1}): {str(e)}")
+            if len(API_KEYS) > 1 and attempt < len(API_KEYS) - 1:
+                _current_key_index = (_current_key_index + 1) % len(API_KEYS)
+                configure_client()
+                print(f"[INFO] Switched to fallback API key (New index: {_current_key_index})")
+                continue
+            else:
+                raise e
+        except (json.JSONDecodeError, AssertionError, KeyError) as e:
+            print(f"[DEBUG] Parse/validation error: {type(e).__name__}: {e}")
+            return {
+                "fraud_likelihood": "medium",
+                "confidence_score": 50,
+                "red_flags": ["Analysis inconclusive — please try again"],
+                "explanation": "The AI could not produce a structured analysis for this document. Try uploading a clearer image.",
+                "health_score": None
+            }
+        except Exception as e:
+            print(f"[ERROR] Unexpected error in analyze_document: {str(e)}")
+            raise RuntimeError(f"Gemini API error: {str(e)}")
+
+    raise RuntimeError("All Gemini API keys exhausted or failed.")
+
+def analyze_document_kyd(image_bytes: bytes) -> dict:
+    """Send image to Gemini for KYD analysis with fallback logic."""
+    global _current_key_index
+    print(f"[DEBUG] gemini.analyze_document_kyd started (bytes: {len(image_bytes)})")
+    
+    for attempt in range(len(API_KEYS) or 1):
+        try:
+            if image_bytes.startswith(b'%PDF'):
+                input_data = {'mime_type': 'application/pdf', 'data': image_bytes}
+            else:
+                input_data = Image.open(io.BytesIO(image_bytes))
+
+            generation_config = {
+                "temperature": 0.1,
+                "top_p": 1,
+                "top_k": 32,
+                "max_output_tokens": 4096,
+            }
+            
+            model = get_model()
+            response = model.generate_content([KYD_PROMPT, input_data], generation_config=generation_config)
+            print(f"[DEBUG] Gemini KYD responded successfully (Key index: {_current_key_index})")
+            
+            raw = response.text.strip()
+            raw = re.sub(r"```json|```", "", raw).strip()
+            result = json.loads(raw)
+            
+            return {
+                "document_type": result.get("document_type", "Unknown Document type"),
+                "common_name": result.get("common_name", "Unknown Name"),
+                "issuing_authority": result.get("issuing_authority", None),
+                "purpose": result.get("purpose", "Analysis could not precisely determine purpose."),
+                "typical_use_cases": result.get("typical_use_cases", []),
+                "key_fields_present": result.get("key_fields_present", []),
+                "data_categories": result.get("data_categories", []),
+                "notes": result.get("notes", None)
+            }
+
+        except (exceptions.ResourceExhausted, exceptions.ServiceUnavailable, exceptions.PermissionDenied, exceptions.Unauthenticated) as e:
+            print(f"[WARNING] Gemini KYD API Issue (Attempt {attempt+1}): {str(e)}")
+            if len(API_KEYS) > 1 and attempt < len(API_KEYS) - 1:
+                _current_key_index = (_current_key_index + 1) % len(API_KEYS)
+                configure_client()
+                continue
+            else:
+                raise e
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"[DEBUG] KYD Parse error: {type(e).__name__}: {e}")
+            return {
+                "document_type": "Unknown Document",
+                "common_name": "Unrecognized",
+                "issuing_authority": None,
+                "purpose": "Could not extract details. Image may be unclear.",
+                "typical_use_cases": [],
+                "key_fields_present": [],
+                "data_categories": [],
+                "notes": "Failed to structured data from AI."
+            }
+        except Exception as e:
+            raise RuntimeError(f"Gemini KYD API error: {str(e)}")
+
+    raise RuntimeError("All Gemini API keys exhausted or failed for KYD.")
