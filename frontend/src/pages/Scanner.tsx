@@ -154,7 +154,7 @@ const Scanner: React.FC = () => {
                         <Upload className="w-24 h-24 text-blue-500" />
                     </div>
                     <div className="text-center space-y-2">
-                        <p className="text-2xl font-bold">Verify Document Integrity</p>
+                        <p className="text-2xl font-bold text-primary">Verify Document Integrity</p>
                         <p className="text-zinc-500">Drag and drop or tap to upload (PDF, JPG, PNG, WEBP)</p>
                     </div>
                     {/* Hidden file input */}
@@ -241,7 +241,7 @@ const Scanner: React.FC = () => {
                                 <div className="flex items-start justify-between">
                                     <div className="space-y-1">
                                         <p className="text-blue-500 font-bold uppercase tracking-widest text-xs">Forensic Verdict</p>
-                                        <h3 className="text-4xl font-bold capitalize">{result.fraud_likelihood} Risk Detected</h3>
+                                        <h3 className="text-4xl font-bold capitalize text-primary">{result.fraud_likelihood} Risk Detected</h3>
                                     </div>
                                     <div className="text-center">
                                         <div className="text-5xl font-mono font-bold text-blue-500">{result.confidence_score}%</div>
@@ -273,7 +273,7 @@ const Scanner: React.FC = () => {
                             </div>
 
                             <div className="glass p-8 rounded-3xl space-y-6">
-                                <h4 className="font-bold text-xl flex items-center gap-3 underline decoration-blue-500/50 decoration-4">
+                                <h4 className="font-bold text-xl flex items-center gap-3 underline decoration-blue-500/50 decoration-4 text-primary">
                                     <AlertTriangle className="w-6 h-6 text-yellow-500" />
                                     Forensic Artifacts Found
                                 </h4>
@@ -296,7 +296,7 @@ const Scanner: React.FC = () => {
                                     <FileText className="w-8 h-8" />
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="font-bold text-lg">Full Report Prepared</p>
+                                    <p className="font-bold text-lg text-primary">Full Report Prepared</p>
                                     <div className="flex flex-col items-center gap-2 group/name">
                                         {isRenaming ? (
                                             <div className="flex items-center gap-2 w-full max-w-xs">
@@ -365,7 +365,7 @@ const Scanner: React.FC = () => {
                                         setSaveStatus('idle');
                                         setFile(null);
                                     }}
-                                    className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-2xl transition-all"
+                                    className="w-full py-4 bg-zinc-800 hover:bg-zinc-700 text-primary font-bold rounded-2xl transition-all"
                                 >
                                     Scan New Document
                                 </button>

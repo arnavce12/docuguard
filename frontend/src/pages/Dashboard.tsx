@@ -45,7 +45,7 @@ const Dashboard: React.FC = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/80 border border-zinc-600/50 rounded-full text-zinc-200 text-xs font-bold uppercase tracking-wider shadow-inner">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/80 border border-zinc-600/50 rounded-full text-primary text-xs font-bold uppercase tracking-wider shadow-inner">
                         <Activity className="w-3 h-3 text-blue-400" />
                         <span>Command Center</span>
                     </div>
@@ -115,7 +115,7 @@ const Dashboard: React.FC = () => {
                                 className="p-6 glass border border-zinc-700 hover:border-blue-500/50 text-left rounded-2xl transition-all duration-300 hover:-translate-y-1 group"
                             >
                                 <Search className="w-6 h-6 text-blue-500 mb-3 group-hover:scale-110 transition-transform" />
-                                <p className="font-bold text-white group-hover:text-blue-400 transition-colors text-lg">Fraud Scan</p>
+                                <p className="font-bold text-primary group-hover:text-blue-400 transition-colors text-lg">Fraud Scan</p>
                                 <p className="text-sm text-zinc-300 mt-1">Detect forgery and tampering instantly.</p>
                             </button>
                             <button 
@@ -123,7 +123,7 @@ const Dashboard: React.FC = () => {
                                 className="p-6 glass border border-zinc-700 hover:border-purple-500/50 text-left rounded-2xl transition-all duration-300 hover:-translate-y-1 group"
                             >
                                 <FileSearch className="w-6 h-6 text-purple-500 mb-3 group-hover:scale-110 transition-transform" />
-                                <p className="font-bold text-white group-hover:text-purple-400 transition-colors text-lg">Verify Identity</p>
+                                <p className="font-bold text-primary group-hover:text-purple-400 transition-colors text-lg">Verify Identity</p>
                                 <p className="text-sm text-zinc-300 mt-1">Extract profile and intent via KYD.</p>
                             </button>
                         </div>
@@ -145,7 +145,7 @@ const Dashboard: React.FC = () => {
                             ) : 'bg-indigo-600/10'
                         }`}></div>
                         <div className="flex items-center justify-between relative z-10">
-                            <h3 className="text-xl font-bold flex items-center gap-2 text-white">
+                            <h3 className="text-xl font-bold flex items-center gap-2 text-primary">
                                 <PieChart className={`w-5 h-5 ${
                                     fraudScans.length > 0 ? (
                                         riskPercentage > 50 ? 'text-red-400' : 

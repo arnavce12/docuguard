@@ -58,7 +58,7 @@ export const Navbar = () => {
                     <div className="nav-desktop-auth flex items-center gap-4">
                         <button
                             onClick={toggleTheme}
-                            className="p-2.5 glass rounded-xl text-zinc-400 hover:text-white transition-all border border-zinc-800 shadow-sm"
+                            className="p-2.5 glass rounded-xl text-zinc-400 hover:text-primary transition-all border border-zinc-800 shadow-sm"
                             title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                         >
                             {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -68,7 +68,7 @@ export const Navbar = () => {
                                 <NavLink 
                                     to="/auth" 
                                     state={{ mode: 'login' }}
-                                    className="px-5 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white transition-colors"
+                                    className="px-5 py-2.5 text-sm font-semibold text-zinc-400 hover:text-primary transition-colors"
                                 >
                                     Login
                                 </NavLink>
@@ -104,8 +104,8 @@ export const Navbar = () => {
                             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
                         >
                             {menuOpen
-                                ? <X className="w-6 h-6 text-white" />
-                                : <Menu className="w-6 h-6 text-white" />
+                                ? <X className="w-6 h-6 text-primary" />
+                                : <Menu className="w-6 h-6 text-primary" />
                             }
                         </button>
                     </div>

@@ -102,7 +102,7 @@ const KydPage: React.FC = () => {
                         <Upload className="w-24 h-24 text-purple-500" />
                     </div>
                     <div className="text-center space-y-2">
-                        <p className="text-2xl font-bold">Upload to Identify</p>
+                        <p className="text-2xl font-bold text-primary">Upload to Identify</p>
                         <p className="text-zinc-500">Drag and drop or tap to upload (PDF, JPG, PNG, WEBP)</p>
                     </div>
                     <input
@@ -193,7 +193,7 @@ const KydPage: React.FC = () => {
                                     <h2 className="text-4xl md:text-5xl font-bold tracking-tight">{result.document_type}</h2>
                                     <div className="flex items-center gap-3 text-zinc-400">
                                         <FileText className="w-5 h-5 text-purple-400" />
-                                        <p className="text-xl">Known as: <span className="text-white font-semibold">{result.common_name}</span></p>
+                                        <p className="text-xl">Known as: <span className="text-primary font-semibold">{result.common_name}</span></p>
                                     </div>
                                 </div>
                                 
@@ -208,7 +208,7 @@ const KydPage: React.FC = () => {
                             <div className="flex flex-col gap-4">
                                 <div className="glass p-6 rounded-3xl bg-zinc-900/40 border-zinc-800">
                                     <span className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em] mb-2 block">Origin / Authority</span>
-                                    <p className="font-bold text-lg text-white">
+                                    <p className="font-bold text-lg text-primary">
                                         {result.issuing_authority || 'Standard Template'}
                                     </p>
                                 </div>
@@ -234,7 +234,7 @@ const KydPage: React.FC = () => {
                                     <Info className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-xl text-white">Data Categories</h3>
+                                    <h3 className="font-bold text-xl text-primary">Data Categories</h3>
                                     <p className="text-xs text-zinc-500 font-medium">Types of information contained</p>
                                 </div>
                             </div>
@@ -254,7 +254,7 @@ const KydPage: React.FC = () => {
                                     <CheckCircle2 className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-xl text-white">Key Identifiers</h3>
+                                    <h3 className="font-bold text-xl text-primary">Key Identifiers</h3>
                                     <p className="text-xs text-zinc-500 font-medium">Critical fields detected on-page</p>
                                 </div>
                             </div>
@@ -282,7 +282,7 @@ const KydPage: React.FC = () => {
                                         <div className="mt-1.5 p-1 bg-purple-500/20 rounded-full">
                                             <CheckCircle2 className="w-3 h-3 text-purple-400" />
                                         </div>
-                                        <span className="text-zinc-200 text-sm font-medium leading-relaxed">{useCase}</span>
+                                        <span className="text-primary text-sm font-medium leading-relaxed">{useCase}</span>
                                     </div>
                                 ))}
                             </div>
@@ -295,7 +295,7 @@ const KydPage: React.FC = () => {
                                     <Activity className="w-10 h-10 animate-pulse" />
                                 </div>
                                 <div className="space-y-2 relative z-10">
-                                    <p className="font-bold text-2xl">Next Step</p>
+                                    <p className="font-bold text-2xl text-primary">Next Step</p>
                                     <p className="text-sm text-zinc-400 px-4">Verify this document for manipulations or forgeries.</p>
                                 </div>
                                 

@@ -10,7 +10,7 @@ const PrivacyPolicy: React.FC = () => {
 
             <div className="glass p-10 rounded-3xl space-y-8 leading-relaxed text-zinc-300">
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">1. Information We Collect</h2>
+                    <h2 className="text-2xl font-bold text-primary">1. Information We Collect</h2>
                     <p>
                         We collect information necessary to provide our forensics services:
                     </p>
@@ -22,7 +22,7 @@ const PrivacyPolicy: React.FC = () => {
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">2. How We Use Your Data</h2>
+                    <h2 className="text-2xl font-bold text-primary">2. How We Use Your Data</h2>
                     <p>
                         Your data is used specifically for:
                     </p>
@@ -35,7 +35,7 @@ const PrivacyPolicy: React.FC = () => {
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">3. Data Sharing & Third Parties</h2>
+                    <h2 className="text-2xl font-bold text-primary">3. Data Sharing & Third Parties</h2>
                     <p>
                         We do not sell your personal or document data. We share data only with trusted service providers essential to our operations:
                     </p>
@@ -46,7 +46,7 @@ const PrivacyPolicy: React.FC = () => {
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">4. Data Security</h2>
+                    <h2 className="text-2xl font-bold text-primary">4. Data Security</h2>
                     <p>
                         Security is our priority. We implement:
                     </p>
@@ -58,7 +58,7 @@ const PrivacyPolicy: React.FC = () => {
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">5. Your Rights</h2>
+                    <h2 className="text-2xl font-bold text-primary">5. Your Rights</h2>
                     <p>
                         You have full control over your data. You can:
                     </p>

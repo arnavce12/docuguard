@@ -10,28 +10,28 @@ const TermsOfService: React.FC = () => {
 
             <div className="glass p-10 rounded-3xl space-y-8 leading-relaxed text-zinc-300">
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">1. Agreement to Terms</h2>
+                    <h2 className="text-2xl font-bold text-primary">1. Agreement to Terms</h2>
                     <p>
                         By accessing or using the DocuGuard platform, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
                     </p>
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">2. Description of Service</h2>
+                    <h2 className="text-2xl font-bold text-primary">2. Description of Service</h2>
                     <p>
                         DocuGuard provides advanced document forensics, fraud detection, and Know Your Document (KYD) analysis using artificial intelligence and machine learning. Our services are designed to assist in document verification but do not replace professional forensic examination.
                     </p>
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">3. User Responsibilities</h2>
+                    <h2 className="text-2xl font-bold text-primary">3. User Responsibilities</h2>
                     <p>
                         You are responsible for all documents uploaded to the platform. You warrant that you have the legal right, permission, or authority to analyze the provided documents and that your use of the service complies with all applicable laws and regulations.
                     </p>
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">4. Acceptable Use</h2>
+                    <h2 className="text-2xl font-bold text-primary">4. Acceptable Use</h2>
                     <p>
                         You agree not to:
                     </p>
@@ -44,14 +44,14 @@ const TermsOfService: React.FC = () => {
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">5. Intellectual Property</h2>
+                    <h2 className="text-2xl font-bold text-primary">5. Intellectual Property</h2>
                     <p>
                         DocuGuard retains all rights, title, and interest in the platform, its design, logos, and proprietary algorithms. Users retain ownership of the documents they upload, granting DocuGuard a limited license to process such documents for the purpose of providing analysis results.
                     </p>
                 </section>
 
                 <section className="space-y-4">
-                    <h2 className="text-2xl font-bold text-white">6. Limitation of Liability</h2>
+                    <h2 className="text-2xl font-bold text-primary">6. Limitation of Liability</h2>
                     <p>
                         To the maximum extent permitted by law, DocuGuard shall not be liable for any indirect, incidental, special, or consequential damages resulting from the use or inability to use the service, or decisions made based on AI-generated reports.
                     </p>

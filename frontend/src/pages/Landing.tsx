@@ -54,7 +54,7 @@ const Landing: React.FC = () => {
                     </Link>
                     <Link
                         to="/analytics"
-                        className="px-10 py-5 glass text-white font-bold rounded-2xl text-lg hover:bg-zinc-800 transition-all"
+                        className="px-10 py-5 glass text-primary font-bold rounded-2xl text-lg hover:bg-zinc-800 transition-all"
                     >
                         Platform Stats
                     </Link>
@@ -63,7 +63,7 @@ const Landing: React.FC = () => {
 
             {/* Features */}
             <div>
-                <h2 className="text-center text-2xl font-bold mb-10 text-zinc-200">
+                <h2 className="text-center text-2xl font-bold mb-10 text-primary">
                     Why security teams trust DocuGuard
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -87,7 +87,7 @@ const Landing: React.FC = () => {
 
             {/* FAQ */}
             <div className="max-w-3xl mx-auto w-full">
-                <h2 className="text-center text-2xl font-bold mb-10 text-zinc-200">
+                <h2 className="text-center text-2xl font-bold mb-10 text-primary">
                     Frequently Asked Questions
                 </h2>
                 <div className="space-y-3">
@@ -98,7 +98,7 @@ const Landing: React.FC = () => {
                         >
                             <button
                                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                                className="w-full flex items-center justify-between px-6 py-5 text-left font-semibold text-white bg-transparent border-none cursor-pointer"
+                                className="w-full flex items-center justify-between px-6 py-5 text-left font-semibold text-primary bg-transparent border-none cursor-pointer"
                                 aria-expanded={openFaq === i}
                             >
                                 <span>{faq.q}</span>

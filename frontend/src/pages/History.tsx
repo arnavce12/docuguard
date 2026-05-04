@@ -135,7 +135,7 @@ const History: React.FC = () => {
             <div className="flex px-1.5 py-1.5 bg-zinc-900 border border-zinc-800 rounded-2xl w-fit">
                 <button
                     onClick={() => setFilter('all')}
-                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${filter === 'all' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                    className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${filter === 'all' ? 'bg-zinc-800 text-primary shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
                 >
                     All Activity
                 </button>
@@ -226,7 +226,7 @@ const History: React.FC = () => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <div className="font-bold text-zinc-200">{item.document_name}</div>
+                                                    <div className="font-bold text-primary">{item.document_name}</div>
                                                     {item.type === 'fraud' && item.raw.is_public_demo && (
                                                         <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-500 mt-1 block">Public Demo</span>
                                                     )}

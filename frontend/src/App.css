@@ -47,6 +47,12 @@
   color: var(--text-primary);
 }
 
+[data-theme='light'] .text-zinc-100,
+[data-theme='light'] .text-zinc-200,
+[data-theme='light'] .text-primary {
+  color: var(--text-primary) !important;
+}
+
 [data-theme='light'] .text-zinc-400,
 [data-theme='light'] .text-zinc-300,
 [data-theme='light'] .text-secondary {

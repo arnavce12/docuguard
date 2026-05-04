@@ -144,7 +144,7 @@ const HealthScore: React.FC = () => {
                                 />
                             </svg>
                             <div className="absolute flex flex-col items-center justify-center">
-                                <span className="text-6xl font-black font-mono text-white tracking-tighter drop-shadow-lg">{health_score.overall}</span>
+                                <span className="text-6xl font-black font-mono text-primary tracking-tighter drop-shadow-lg">{health_score.overall}</span>
                                 <span className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.3em] mt-1">PERCENTILE</span>
                             </div>
                         </div>
@@ -183,12 +183,12 @@ const HealthScore: React.FC = () => {
                                         <div className="flex justify-between items-start">
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-bold text-zinc-100 group-hover:text-white transition-colors">{axis.label}</span>
+                                                    <span className="font-bold text-primary group-hover:text-blue-500 transition-colors">{axis.label}</span>
                                                     <span className="text-[9px] bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700/50 text-zinc-500 font-bold">{axis.weight}%</span>
                                                 </div>
                                                 <p className="text-xs text-zinc-500 leading-snug max-w-[200px] group-hover:text-zinc-400 transition-colors">{data.note}</p>
                                             </div>
-                                            <span className="text-xl font-mono font-black text-zinc-300 drop-shadow-sm">{data.score}</span>
+                                            <span className="text-xl font-mono font-black text-primary drop-shadow-sm">{data.score}</span>
                                         </div>
                                         <div className="h-2 w-full bg-zinc-800/50 rounded-full overflow-hidden p-[2px] border border-white/5">
                                             <div 
@@ -249,7 +249,7 @@ const HealthScore: React.FC = () => {
                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div className="flex flex-col items-center gap-1">
                         <Activity className="w-6 h-6 text-blue-500 mb-1" />
-                        <span className="text-lg">Scan New Document</span>
+                        <span className="text-lg text-primary">Scan New Document</span>
                         <span className="text-[10px] text-zinc-500 font-black tracking-widest uppercase">RETURN TO LABORATORY</span>
                     </div>
                 </button>

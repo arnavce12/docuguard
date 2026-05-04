@@ -247,7 +247,7 @@ const Analytics: React.FC = () => {
                             <div key={i} className="analytics-flag-item" style={{ animationDelay: `${i * 100}ms` }}>
                                 <div className="flex items-center gap-3">
                                     <span className="analytics-flag-rank">{i + 1}</span>
-                                    <span className="text-sm font-medium text-zinc-200">{item.flag}</span>
+                                    <span className="text-sm font-medium text-primary">{item.flag}</span>
                                 </div>
                                 <span className="analytics-flag-count">{item.count} hits</span>
                             </div>
@@ -298,7 +298,7 @@ const GlowStatCard = ({ icon, label, value, gradient, borderColor, iconBg, iconC
     >
         <div className="p-2.5 w-fit rounded-xl" style={{ background: iconBg, color: iconColor }}>{icon}</div>
         <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">{label}</p>
-        <p className="text-3xl font-bold">{value}</p>
+        <p className="text-3xl font-bold text-primary">{value}</p>
     </div>
 );
 
